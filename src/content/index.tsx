@@ -38,22 +38,17 @@ function debounce<T extends (...args: any[]) => void>(
 
 // Initialize the extension
 async function init() {
-  console.log('[GPT-UI] Initializing extension...');
-  
   // Don't reinitialize if already initialized and elements exist
   const existingRoot = document.getElementById('graphgpt-root');
   const existingButton = document.getElementById('gpt-ui-toggle-button');
   if (existingRoot && existingButton && rootContainer && shadowRoot) {
-    console.log('[GPT-UI] Already initialized, skipping...');
     return;
   }
   
   // Load settings
   currentSettings = await getSettings();
-  console.log('[GPT-UI] Settings loaded:', currentSettings);
 
   if (!currentSettings.enabled) {
-    console.log('[GPT-UI] Extension is disabled');
     return;
   }
 
@@ -62,18 +57,13 @@ async function init() {
     rootContainer = document.createElement('div');
     rootContainer.id = 'graphgpt-root';
     document.body.appendChild(rootContainer);
-    console.log('[GPT-UI] Root container created');
   } else {
     rootContainer = existingRoot as HTMLElement;
-    console.log('[GPT-UI] Using existing root container');
   }
 
   // Create shadow DOM if it doesn't exist
   if (!shadowRoot) {
     shadowRoot = rootContainer.attachShadow({ mode: 'open' });
-    console.log('[GPT-UI] Shadow DOM created');
-  } else {
-    console.log('[GPT-UI] Using existing shadow DOM');
   }
 
   // Inject styles into shadow DOM (only if not already there)
@@ -81,7 +71,6 @@ async function init() {
     const styleElement = document.createElement('style');
     styleElement.textContent = stylesText;
     shadowRoot.appendChild(styleElement);
-    console.log('[GPT-UI] Styles injected');
   }
 
   // Create React root container if it doesn't exist
@@ -89,26 +78,22 @@ async function init() {
   if (!reactContainer) {
     reactContainer = document.createElement('div');
     shadowRoot.appendChild(reactContainer);
-    console.log('[GPT-UI] React container created');
   }
 
   // Mount React (recreate root if needed)
   if (!reactRoot) {
     reactRoot = createRoot(reactContainer);
-    console.log('[GPT-UI] React root created');
   }
   renderPanel();
 
   // Create toggle button
   createToggleButton();
-  console.log('[GPT-UI] Toggle button created');
 
   // Set up keyboard shortcut
   setupKeyboardShortcut();
 
   // Start observing
   startObserving();
-  console.log('[GPT-UI] Extension initialized successfully');
 }
 
 // Create floating toggle button (in regular DOM, not shadow DOM, so it's always visible)
@@ -132,19 +117,9 @@ function createToggleButton() {
   button.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('[GPT-UI] Button clicked!');
     isVisible = !isVisible;
-    console.log('[GPT-UI] Setting panel visible to:', isVisible);
     renderPanel();
-    console.log('[GPT-UI] Panel toggled, visible:', isVisible);
   }, true); // Use capture phase to ensure it fires
-  
-  // Also add mousedown as backup
-  button.addEventListener('mousedown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('[GPT-UI] Button mousedown!');
-  }, true);
 
   // Append to body (not shadow DOM) so it's always visible
   document.body.appendChild(button);
@@ -198,8 +173,6 @@ function createToggleButton() {
   
   // Store update function globally so we can call it
   (window as any).__gpt_ui_updateButton = updateButtonTitle;
-  
-  console.log('[GPT-UI] Toggle button created and appended to body');
 }
 
 // Setup keyboard shortcut (Cmd/Ctrl+Shift+E)
@@ -215,12 +188,7 @@ function setupKeyboardShortcut() {
 
 // Render the panel
 function renderPanel() {
-  if (!reactRoot) {
-    console.log('[GPT-UI] Cannot render panel: reactRoot is null');
-    return;
-  }
-
-  console.log('[GPT-UI] Rendering panel, isVisible:', isVisible, 'results:', currentResults.length);
+  if (!reactRoot) return;
 
   reactRoot.render(
     React.createElement(App, {
@@ -228,7 +196,6 @@ function renderPanel() {
       settings: currentSettings,
       isVisible: isVisible,
       onClose: () => {
-        console.log('[GPT-UI] Panel close button clicked');
         isVisible = false;
         renderPanel();
       },
@@ -241,14 +208,11 @@ function renderPanel() {
 const updateResults = debounce(() => {
   if (!currentSettings.enabled) return;
 
-  console.log('[GPT-UI] Extracting results...');
   const newResults = extractResults();
-  console.log('[GPT-UI] Found', newResults.length, 'results:', newResults);
   
   // Only update if results changed
   if (JSON.stringify(newResults) !== JSON.stringify(currentResults)) {
     currentResults = newResults;
-    console.log('[GPT-UI] Results updated, rendering panel');
     
     // Update button title
     if ((window as any).__gpt_ui_updateButton) {
@@ -267,12 +231,10 @@ function startObserving() {
     const root = document.getElementById('graphgpt-root');
     
     if (!button && rootContainer) {
-      console.log('[GPT-UI] Toggle button was removed, recreating...');
       createToggleButton();
     }
     
     if (!root && rootContainer) {
-      console.log('[GPT-UI] Root container was removed, recreating...');
       // Recreate the root container and reinitialize
       init();
       return;
@@ -303,12 +265,10 @@ function startObserving() {
     const root = document.getElementById('graphgpt-root');
     
     if (!button && rootContainer) {
-      console.log('[GPT-UI] Toggle button missing, recreating...');
       createToggleButton();
     }
     
     if (!root && rootContainer) {
-      console.log('[GPT-UI] Root container missing, reinitializing...');
       init();
     }
   }, 1000);
@@ -338,7 +298,6 @@ function delayedInit() {
     const button = document.getElementById('gpt-ui-toggle-button');
     const root = document.getElementById('graphgpt-root');
     if (!button || !root) {
-      console.log('[GPT-UI] Elements missing after delay, reinitializing...');
       init();
     }
   }, 3000);
@@ -356,7 +315,6 @@ new MutationObserver(() => {
   const url = location.href;
   if (url !== lastUrl) {
     lastUrl = url;
-    console.log('[GPT-UI] URL changed, reinitializing...');
     setTimeout(() => {
       init();
     }, 1000);

@@ -94,12 +94,9 @@ export function findAssistantMessages(container: HTMLElement = document.body): H
   // Strategy 3: Heuristic - look for message groups that contain external links
   // and are likely assistant messages (not user messages which typically have input fields)
   if (messages.length === 0) {
-    console.log('[GPT-UI] No messages found with selectors, trying heuristic approach...');
     const allDivs = container.querySelectorAll('div');
-    let checked = 0;
     allDivs.forEach((div) => {
       if (div instanceof HTMLElement) {
-        checked++;
         const hasExternalLinks = Array.from(div.querySelectorAll('a[href^="http"]')).some(
           (a) => {
             const href = a.getAttribute('href') || '';
@@ -119,7 +116,6 @@ export function findAssistantMessages(container: HTMLElement = document.body): H
         }
       }
     });
-    console.log(`[GPT-UI] Checked ${checked} divs, found ${messages.length} potential messages`);
   }
   
   return messages;
@@ -172,25 +168,14 @@ export function hasSearchResults(message: HTMLElement): boolean {
                         hostname === 'chat.openai.com';
       
       if (isChatGPT) {
-        console.log(`[GPT-UI] Link filtered (ChatGPT hostname):`, hostname, href);
         return false;
       }
       
       return true;
     } catch (e) {
-      // If URL parsing fails, fall back to string check but be more careful
-      console.log(`[GPT-UI] URL parsing failed for:`, href, e);
+      // If URL parsing fails, skip it
       return false;
     }
-  });
-  
-  // Debug logging
-  console.log(`[GPT-UI] hasSearchResults check:`, {
-    totalLinks: allLinks.length,
-    externalLinks: externalLinks.length,
-    hasSources,
-    textLength: message.textContent?.length || 0,
-    sampleLinks: externalLinks.slice(0, 3).map(l => l.href || l.getAttribute('href')),
   });
   
   // Consider it search results if:
@@ -198,12 +183,9 @@ export function hasSearchResults(message: HTMLElement): boolean {
   // 2. Has 2+ external links (lowered threshold to catch more cases), OR
   // 3. Has at least 1 external link and the message is substantial
   const hasSubstantialText = message.textContent ? message.textContent.length > 300 : false;
-  const result = (hasSources && externalLinks.length > 0) || 
-                 externalLinks.length >= 2 || 
-                 (externalLinks.length >= 1 && hasSubstantialText);
-  
-  console.log(`[GPT-UI] hasSearchResults result:`, result);
-  return result;
+  return (hasSources && externalLinks.length > 0) || 
+         externalLinks.length >= 2 || 
+         (externalLinks.length >= 1 && hasSubstantialText);
 }
 
 /**
@@ -289,11 +271,8 @@ export function findExternalLinks(message: HTMLElement): HTMLAnchorElement[] {
       }
     } catch (e) {
       // If URL parsing fails, skip it
-      console.log(`[GPT-UI] Failed to parse URL:`, href);
     }
   });
-  
-  console.log(`[GPT-UI] findExternalLinks: found ${allLinks.length} total links, ${externalLinks.length} external`);
   
   return externalLinks;
 }

@@ -18,6 +18,7 @@ export function mountApp(
     onSettingsChange: (settings: ExtensionSettings) => void;
     onHighlight?: (sourceNodeSelectorHint: string, url: string, sourceMessageId?: string) => void;
     lastUpdated?: Date;
+    onEnhanceModeToggle?: (enabled: boolean) => void; // V4: Enhance mode toggle callback
   }
 ): { root: any; unmount: () => void } {
   // Apply theme

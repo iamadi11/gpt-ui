@@ -15,6 +15,7 @@ interface PanelProps {
   onPin?: (result: Result) => void;
   isPinned?: (id: string) => boolean;
   lastUpdated?: Date;
+  onEnhanceModeToggle?: (enabled: boolean) => void; // V4: Callback for enhance mode toggle
 }
 
 type TabType = 'results' | 'pins' | 'history';
@@ -28,6 +29,7 @@ export const Panel: React.FC<PanelProps> = ({
   onPin,
   isPinned,
   lastUpdated,
+  onEnhanceModeToggle,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>(settings.defaultTab || 'results');
   const [previewResult, setPreviewResult] = useState<Result | null>(null);
@@ -131,6 +133,33 @@ export const Panel: React.FC<PanelProps> = ({
       <div className="panel-header">
         <h2 className="panel-title">Enhanced Results</h2>
         <div className="panel-header-actions">
+          {/* V4: Enhance Page toggle - only show in Results tab */}
+          {activeTab === 'results' && onEnhanceModeToggle && (
+            <button
+              className="enhance-mode-toggle"
+              onClick={() => {
+                const newValue = !settings.enhancePageEnabled;
+                onEnhanceModeToggle(newValue);
+              }}
+              aria-label={settings.enhancePageEnabled ? 'Disable Enhance Page' : 'Enable Enhance Page'}
+              title={settings.enhancePageEnabled 
+                ? 'Disable inline results (Enhance Page mode)' 
+                : 'Enable inline results (Enhance Page mode)'}
+              style={{
+                background: settings.enhancePageEnabled ? 'var(--accent-color, #1a73e8)' : 'transparent',
+                color: settings.enhancePageEnabled ? 'white' : 'var(--text-secondary)',
+                border: '1px solid var(--border-color)',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              {settings.enhancePageEnabled ? '✓ Enhance Page' : 'Enhance Page'}
+            </button>
+          )}
           {activeTab === 'results' && previewResult && (
             <button
               className="view-toggle-button"

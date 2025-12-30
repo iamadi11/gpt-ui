@@ -16,6 +16,7 @@ interface AppProps {
   onSettingsChange: (settings: ExtensionSettings) => void;
   onHighlight?: (sourceNodeSelectorHint: string, url: string, sourceMessageId?: string) => void;
   lastUpdated?: Date;
+  onEnhanceModeToggle?: (enabled: boolean) => void; // V4: Enhance mode toggle callback
 }
 
 export const App: React.FC<AppProps> = ({
@@ -26,6 +27,7 @@ export const App: React.FC<AppProps> = ({
   onSettingsChange,
   onHighlight,
   lastUpdated,
+  onEnhanceModeToggle,
 }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
@@ -80,6 +82,18 @@ export const App: React.FC<AppProps> = ({
   const isPinned = useCallback((id: string): boolean => {
     return pinnedIds.has(id);
   }, [pinnedIds]);
+
+  // V4: Handle enhance mode toggle
+  const handleEnhanceModeToggle = useCallback(async (enabled: boolean) => {
+    // Use the callback from props if provided, otherwise update settings directly
+    if (onEnhanceModeToggle) {
+      await onEnhanceModeToggle(enabled);
+    } else {
+      // Fallback: update settings directly
+      const updatedSettings = { ...settings, enhancePageEnabled: enabled };
+      await onSettingsChange(updatedSettings);
+    }
+  }, [settings, onSettingsChange]);
 
   // Command palette commands
   const commands: Command[] = [
@@ -153,6 +167,7 @@ export const App: React.FC<AppProps> = ({
         onPin={handlePin}
         isPinned={isPinned}
         lastUpdated={lastUpdated}
+        onEnhanceModeToggle={handleEnhanceModeToggle}
       />
       {showSettings && (
         <SettingsModal

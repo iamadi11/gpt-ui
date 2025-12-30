@@ -27,6 +27,10 @@ export interface ExtensionSettings {
   historyEnabled: boolean; // V3: enable session history
   neverShowQueryContext?: boolean; // V3.1: Never show query context in Knowledge Panel
   showGroupedByDomain?: boolean; // legacy, use defaultView instead
+  // V4: Enhance Page mode
+  enhancePageEnabled?: boolean; // V4: Enable inline results injection
+  collapseRawSources?: boolean; // V4: Collapse raw sources sections
+  inlineLayoutDensity?: 'comfortable' | 'compact'; // V4: Layout density for inline results
 }
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
@@ -43,6 +47,10 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   showGroupedByDomain: true, // legacy support
   // V3.1 defaults
   neverShowQueryContext: false,
+  // V4: Enhance Page defaults
+  enhancePageEnabled: false,
+  collapseRawSources: true,
+  inlineLayoutDensity: 'compact',
 };
 
 // V3: Pinboard types

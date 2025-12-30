@@ -7,6 +7,8 @@ import { highlightInChat, toggleHighlights } from './highlight';
 import { detectTheme } from '../ui/theme';
 import { hashUrl } from '../shared/utils/hash';
 import { normalizeUrl } from '../shared/utils/url';
+import { toggleEnhanceMode, reapplyEnhancements, isEnhanceModeActive } from './enhancePage/enhanceController';
+import type { ContentScriptMessage } from './enhancePage/types';
 // Import CSS as inline string for shadow DOM injection
 // @ts-ignore - Vite handles ?inline
 import stylesText from './styles.css?inline';
@@ -102,6 +104,17 @@ async function init() {
         highlightInChat(sourceNodeSelectorHint, url, sourceMessageId);
       },
       lastUpdated: new Date(),
+      onEnhanceModeToggle: async (enabled: boolean) => {
+        // Update settings
+        currentSettings = { ...currentSettings, enhancePageEnabled: enabled };
+        await setSettings(currentSettings);
+        
+        // Toggle enhance mode
+        toggleEnhanceMode(enabled, currentSettings);
+        
+        // Re-render panel
+        renderPanel();
+      },
     });
   } else {
     renderPanel();
@@ -115,6 +128,9 @@ async function init() {
 
   // Start observing
   startObserving();
+  
+  // Initialize enhance mode if enabled (async, don't await)
+  initEnhanceMode().catch(console.error);
 }
 
 // Create floating toggle button (in regular DOM, not shadow DOM)
@@ -282,6 +298,17 @@ function renderPanel() {
         highlightInChat(sourceNodeSelectorHint, url, sourceMessageId);
       },
       lastUpdated: new Date(),
+      onEnhanceModeToggle: async (enabled: boolean) => {
+        // Update settings
+        currentSettings = { ...currentSettings, enhancePageEnabled: enabled };
+        await setSettings(currentSettings);
+        
+        // Toggle enhance mode
+        toggleEnhanceMode(enabled, currentSettings);
+        
+        // Re-render panel
+        renderPanel();
+      },
     });
   }
 }
@@ -377,6 +404,11 @@ const updateResults = (() => {
           (window as any).__gpt_ui_updateButton();
         }
         
+        // Re-apply enhance mode if enabled
+        if (currentSettings.enhancePageEnabled) {
+          reapplyEnhancements(currentSettings);
+        }
+        
         renderPanel();
       }
     }, 300); // Debounce 300ms
@@ -412,6 +444,35 @@ function startObserving() {
 
   // Initial extraction
   updateResults();
+}
+
+// Listen for runtime messages from UI to toggle enhance mode
+chrome.runtime.onMessage.addListener((message: ContentScriptMessage, _sender, sendResponse) => {
+  if (message.type === 'SET_ENHANCE_MODE') {
+    toggleEnhanceMode(message.enabled, currentSettings);
+    sendResponse({ success: true });
+  } else if (message.type === 'SET_ENHANCE_SETTINGS') {
+    // Update settings and reapply
+    currentSettings = { ...currentSettings, ...message.settings };
+    if (currentSettings.enhancePageEnabled) {
+      reapplyEnhancements(currentSettings);
+    } else {
+      // Disable if turned off
+      if (isEnhanceModeActive()) {
+        toggleEnhanceMode(false, currentSettings);
+      }
+    }
+    sendResponse({ success: true });
+  }
+  return true; // Keep message channel open for async response
+});
+
+// Initialize enhance mode if enabled in settings
+async function initEnhanceMode() {
+  const settings = await getSettings();
+  if (settings.enhancePageEnabled) {
+    toggleEnhanceMode(true, settings);
+  }
 }
 
 // Handle settings changes from storage

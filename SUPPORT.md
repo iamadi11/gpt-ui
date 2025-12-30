@@ -14,7 +14,7 @@ How to get help and report issues with SourceLens.
 If you encounter a bug or issue:
 
 1. **Check existing issues:**
-   - Search the repository's issue tracker
+   - Search the [repository's issue tracker](https://github.com/iamadi11/gpt-ui/issues)
    - Check if your issue has already been reported
 
 2. **Gather information:**
@@ -74,7 +74,7 @@ We welcome feature requests! When suggesting a feature:
 If you discover a security vulnerability:
 
 1. **Do NOT open a public issue**
-2. **Email the maintainer directly** (see repository for contact)
+2. **Email the maintainer directly** (see [repository](https://github.com/iamadi11/gpt-ui) for contact information)
 3. **Include:**
    - Description of the vulnerability
    - Steps to reproduce

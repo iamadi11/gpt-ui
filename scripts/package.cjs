@@ -32,8 +32,14 @@ if (fs.existsSync(zipPath)) {
   fs.unlinkSync(zipPath);
 }
 
-// Files to include in the zip
-const filesToInclude = [
+// Check if dist directory exists
+if (!fs.existsSync(DIST_DIR)) {
+  console.error('❌ Error: dist/ directory not found. Run "npm run build" first.');
+  process.exit(1);
+}
+
+// Base files to include in the zip
+const baseFiles = [
   'manifest.json',
   'content.js',
   'icons/icon16.png',
@@ -42,13 +48,27 @@ const filesToInclude = [
   'icons/icon128.png',
 ];
 
-console.log(`📦 Packaging SourceLens v${version}...`);
+// Dynamically find additional files (CSS, chunks)
+const filesToInclude = [...baseFiles];
 
-// Check if dist directory exists
-if (!fs.existsSync(DIST_DIR)) {
-  console.error('❌ Error: dist/ directory not found. Run "npm run build" first.');
-  process.exit(1);
+// Add CSS file if it exists
+if (fs.existsSync(path.join(DIST_DIR, 'content.css'))) {
+  filesToInclude.push('content.css');
 }
+
+// Add chunk files if they exist
+try {
+  const distFiles = fs.readdirSync(DIST_DIR, { withFileTypes: true });
+  distFiles.forEach(file => {
+    if (file.isFile() && file.name.startsWith('chunk-') && file.name.endsWith('.js')) {
+      filesToInclude.push(file.name);
+    }
+  });
+} catch (err) {
+  // Ignore errors reading directory
+}
+
+console.log(`📦 Packaging SourceLens v${version}...`);
 
 // Check if required files exist
 const missingFiles = filesToInclude.filter(file => {

@@ -111,7 +111,9 @@ We may update this privacy policy from time to time. The "Last updated" date at 
 
 ## Contact
 
-For questions about this privacy policy or data handling practices, please contact: [Your Email Address]
+For questions about this privacy policy or data handling practices, please contact: [your-email@example.com]
+
+(Replace with your actual contact email before publishing to Chrome Web Store)
 
 ## Compliance
 

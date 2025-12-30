@@ -474,21 +474,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <a
-                href="https://github.com/your-username/sourcelens"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '12px' }}
-              >
-                GitHub
-              </a>
-              <a
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  // Open privacy policy (could be a markdown file or web page)
-                  window.open('https://github.com/your-username/sourcelens/blob/main/PRIVACY_POLICY.md', '_blank');
+                  // Try to open privacy policy from extension
+                  if (typeof chrome !== 'undefined' && chrome.runtime) {
+                    const url = chrome.runtime.getURL('PRIVACY_POLICY.md');
+                    if (url) {
+                      chrome.tabs.create({ url });
+                    } else {
+                      // Fallback to GitHub
+                      window.open('https://github.com/iamadi11/gpt-ui/blob/main/PRIVACY_POLICY.md', '_blank');
+                    }
+                  } else {
+                    window.open('https://github.com/iamadi11/gpt-ui/blob/main/PRIVACY_POLICY.md', '_blank');
+                  }
                 }}
-                style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '12px' }}
+                style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '12px', cursor: 'pointer' }}
               >
                 Privacy Policy
               </a>
@@ -496,11 +498,39 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  window.open('https://github.com/your-username/sourcelens/blob/main/README.md', '_blank');
+                  if (typeof chrome !== 'undefined' && chrome.runtime) {
+                    const url = chrome.runtime.getURL('PERMISSIONS.md');
+                    if (url) {
+                      chrome.tabs.create({ url });
+                    } else {
+                      window.open('https://github.com/iamadi11/gpt-ui/blob/main/PERMISSIONS.md', '_blank');
+                    }
+                  } else {
+                    window.open('https://github.com/iamadi11/gpt-ui/blob/main/PERMISSIONS.md', '_blank');
+                  }
                 }}
-                style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '12px' }}
+                style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '12px', cursor: 'pointer' }}
               >
-                Documentation
+                Permissions
+              </a>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (typeof chrome !== 'undefined' && chrome.runtime) {
+                    const url = chrome.runtime.getURL('CHANGELOG.md');
+                    if (url) {
+                      chrome.tabs.create({ url });
+                    } else {
+                      window.open('https://github.com/iamadi11/gpt-ui/blob/main/CHANGELOG.md', '_blank');
+                    }
+                  } else {
+                    window.open('https://github.com/iamadi11/gpt-ui/blob/main/CHANGELOG.md', '_blank');
+                  }
+                }}
+                style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '12px', cursor: 'pointer' }}
+              >
+                Changelog
               </a>
             </div>
           </div>

@@ -60,7 +60,7 @@ SourceLens transforms AI chat search results into a visual, Google-like results 
 ### Load Unpacked (Development)
 1. **Clone the repository:**
    ```bash
-   git clone [repository-url]
+   git clone https://github.com/iamadi11/gpt-ui.git
    cd gpt-ui
    ```
 
@@ -218,6 +218,10 @@ npm run test:watch
 
 ## 📦 Release Process
 
+For a complete release checklist, see [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md).
+
+**Quick Release Steps:**
+
 1. **Run tests:**
    ```bash
    npm test
@@ -239,6 +243,11 @@ npm run test:watch
    - Upload the zip file
    - Fill in store listing details (see [STORE_LISTING.md](./STORE_LISTING.md))
    - Submit for review
+
+**Before releasing:**
+- Review [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) for complete checklist
+- Review [VISUAL_QA_RUBRIC.md](./VISUAL_QA_RUBRIC.md) for quality assurance
+- Update [CHANGELOG.md](./CHANGELOG.md) with release notes
 
 ## 🐛 Troubleshooting
 

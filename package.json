@@ -1,7 +1,7 @@
 {
   "name": "gpt-ui",
   "version": "3.1.0",
-  "description": "Chrome Extension that enhances ChatGPT search responses with a Google-like results UI",
+  "description": "SourceLens - Glass search results for AI chats. Enhanced results panel with preview, pins, and local-only knowledge insights.",
   "type": "module",
   "scripts": {
     "dev": "vite build --watch --mode development",

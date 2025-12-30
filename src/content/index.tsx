@@ -492,6 +492,38 @@ function startObserving() {
   updateResults();
 }
 
+// Listen for chrome.commands (keyboard shortcuts from manifest)
+if (typeof chrome !== 'undefined' && chrome.commands) {
+  chrome.commands.onCommand.addListener((command: string) => {
+    if (command === 'toggleEnhancePage') {
+      // Toggle enhance page mode
+      const newState = !currentSettings.enhancePageEnabled;
+      currentSettings = { ...currentSettings, enhancePageEnabled: newState };
+      setSettings(currentSettings).then(() => {
+        toggleEnhanceMode(newState, currentSettings);
+        renderPanel();
+      });
+    } else if (command === 'toggleHighlights') {
+      // Toggle highlight sources in chat
+      toggleHighlights(
+        currentResults.map(r => ({
+          sourceNodeSelectorHint: r.sourceNodeSelectorHint,
+          url: r.url,
+          sourceMessageId: r.sourceMessageId,
+        }))
+      );
+    } else if (command === 'openCommandPalette') {
+      // Open command palette (handled by App component via Cmd/Ctrl+K)
+      // This is a fallback - the App component handles Cmd/Ctrl+K directly
+      // But we can trigger panel visibility if needed
+      if (!isVisible && currentResults.length > 0) {
+        isVisible = true;
+        renderPanel();
+      }
+    }
+  });
+}
+
 // Listen for runtime messages from UI to toggle enhance mode
 chrome.runtime.onMessage.addListener((message: ContentScriptMessage, _sender, sendResponse) => {
   if (message.type === 'SET_ENHANCE_MODE') {

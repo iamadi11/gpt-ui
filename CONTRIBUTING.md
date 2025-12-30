@@ -57,8 +57,8 @@ Thank you for your interest in contributing to SourceLens! This document provide
 
 1. **Clone your fork:**
    ```bash
-   git clone https://github.com/your-username/sourcelens.git
-   cd sourcelens
+   git clone https://github.com/iamadi11/gpt-ui.git
+   cd gpt-ui
    ```
 
 2. **Install dependencies:**

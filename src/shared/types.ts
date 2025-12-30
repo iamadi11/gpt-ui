@@ -31,6 +31,10 @@ export interface ExtensionSettings {
   enhancePageEnabled?: boolean; // V4: Enable inline results injection
   collapseRawSources?: boolean; // V4: Collapse raw sources sections
   inlineLayoutDensity?: 'comfortable' | 'compact'; // V4: Layout density for inline results
+  // V5: Page UX Update mode (separate from V4 enhance mode)
+  pageUxEnabled?: boolean; // V5: Enable comprehensive page UX updates
+  highlightExternalLinks?: boolean; // V5: Highlight external links in messages
+  showKnowledgeMiniPanel?: boolean; // V5: Show knowledge mini-panel in messages
 }
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {

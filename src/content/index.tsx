@@ -84,6 +84,13 @@ async function init() {
 
   // Set theme attribute
   reactContainer.setAttribute('data-theme', theme);
+  
+  // Apply glassmorphism settings
+  const glassEnabled = currentSettings.glassmorphismEnabled !== false; // default true
+  reactContainer.setAttribute('data-glass-enabled', glassEnabled ? 'true' : 'false');
+  
+  const glassIntensity = currentSettings.glassIntensity || 'normal';
+  reactContainer.setAttribute('data-glass-intensity', glassIntensity);
 
   // Mount React app
   if (!reactApp) {

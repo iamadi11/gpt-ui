@@ -1,0 +1,124 @@
+/**
+ * Glassmorphism design tokens for Page UX Update mode (V5)
+ * These are injected into the document head when Page UX mode is enabled
+ * Scoped to .graphgpt-pageux [data-graphgpt-*] elements only
+ */
+
+.graphgpt-pageux {
+  /* Glass surfaces - Light theme (default) */
+  --graphgpt-glass-bg: rgba(255, 255, 255, 0.75);
+  --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.85);
+  --graphgpt-glass-border: rgba(0, 0, 0, 0.08);
+  --graphgpt-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --graphgpt-glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.16);
+  --graphgpt-glass-blur: 16px;
+  --graphgpt-glass-saturation: 180%;
+  --graphgpt-glass-radius: 12px;
+  --graphgpt-glass-radius-sm: 8px;
+  --graphgpt-glass-radius-lg: 16px;
+  
+  /* Text colors - Light theme */
+  --graphgpt-text-primary: #1f2937;
+  --graphgpt-text-secondary: #6b7280;
+  
+  /* Chip/Button glass - Light theme */
+  --graphgpt-chip-bg: rgba(255, 255, 255, 0.6);
+  --graphgpt-chip-bg-hover: rgba(255, 255, 255, 0.8);
+  --graphgpt-chip-border: rgba(0, 0, 0, 0.1);
+  --graphgpt-chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  
+  /* Link color */
+  --graphgpt-link-color: #3b82f6;
+  
+  /* Hover lift */
+  --graphgpt-hover-lift: translateY(-2px);
+}
+
+.graphgpt-pageux[data-graphgpt-theme="dark"] {
+  /* Glass surfaces - Dark theme */
+  --graphgpt-glass-bg: rgba(31, 41, 55, 0.8);
+  --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.9);
+  --graphgpt-glass-border: rgba(255, 255, 255, 0.1);
+  --graphgpt-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --graphgpt-glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.5);
+  
+  /* Text colors - Dark theme */
+  --graphgpt-text-primary: #f9fafb;
+  --graphgpt-text-secondary: #d1d5db;
+  
+  /* Chip/Button glass - Dark theme */
+  --graphgpt-chip-bg: rgba(31, 41, 55, 0.7);
+  --graphgpt-chip-bg-hover: rgba(31, 41, 55, 0.85);
+  --graphgpt-chip-border: rgba(255, 255, 255, 0.15);
+  --graphgpt-chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  
+  /* Link color - Dark theme */
+  --graphgpt-link-color: #60a5fa;
+}
+
+/* Glassmorphism intensity variations */
+.graphgpt-pageux[data-glass-intensity="subtle"] {
+  --graphgpt-glass-blur: 10px;
+  --graphgpt-glass-bg: rgba(255, 255, 255, 0.85);
+  --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.92);
+  --graphgpt-glass-border: rgba(0, 0, 0, 0.1);
+}
+
+.graphgpt-pageux[data-graphgpt-theme="dark"][data-glass-intensity="subtle"] {
+  --graphgpt-glass-bg: rgba(31, 41, 55, 0.85);
+  --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.92);
+  --graphgpt-glass-border: rgba(255, 255, 255, 0.12);
+}
+
+.graphgpt-pageux[data-glass-intensity="strong"] {
+  --graphgpt-glass-blur: 22px;
+  --graphgpt-glass-bg: rgba(255, 255, 255, 0.65);
+  --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.75);
+  --graphgpt-glass-border: rgba(0, 0, 0, 0.12);
+}
+
+.graphgpt-pageux[data-graphgpt-theme="dark"][data-glass-intensity="strong"] {
+  --graphgpt-glass-bg: rgba(31, 41, 55, 0.7);
+  --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.8);
+  --graphgpt-glass-border: rgba(255, 255, 255, 0.18);
+}
+
+/* Disable glassmorphism */
+.graphgpt-pageux[data-glass-enabled="false"] {
+  --graphgpt-glass-bg: rgba(255, 255, 255, 0.95);
+  --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.98);
+  --graphgpt-glass-border: rgba(0, 0, 0, 0.12);
+  --graphgpt-glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --graphgpt-glass-blur: 0px;
+}
+
+.graphgpt-pageux[data-graphgpt-theme="dark"][data-glass-enabled="false"] {
+  --graphgpt-glass-bg: rgba(31, 41, 55, 0.95);
+  --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.98);
+  --graphgpt-glass-border: rgba(255, 255, 255, 0.15);
+  --graphgpt-glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Fallback for browsers without backdrop-filter support */
+@supports not (backdrop-filter: blur(1px)) {
+  .graphgpt-pageux {
+    --graphgpt-glass-bg: rgba(255, 255, 255, 0.95);
+    --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.98);
+    --graphgpt-glass-border: rgba(0, 0, 0, 0.12);
+    --graphgpt-glass-blur: 0px;
+  }
+  
+  .graphgpt-pageux[data-graphgpt-theme="dark"] {
+    --graphgpt-glass-bg: rgba(31, 41, 55, 0.95);
+    --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.98);
+    --graphgpt-glass-border: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .graphgpt-pageux {
+    --graphgpt-hover-lift: none;
+  }
+}
+

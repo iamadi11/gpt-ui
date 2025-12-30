@@ -1,0 +1,94 @@
+/**
+ * Glassmorphism design tokens
+ * Used in Shadow DOM for the drawer/panel UI
+ * Supports light/dark themes via data-theme attribute
+ */
+
+:root {
+  /* Glass surfaces - Light theme */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-bg-2: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.16);
+  --glass-blur: 16px;
+  --glass-blur-subtle: 10px;
+  --glass-blur-strong: 22px;
+  --glass-saturation: 180%;
+  --glass-radius: 16px;
+  --glass-radius-sm: 12px;
+  --glass-radius-lg: 20px;
+  
+  /* Text colors - Light theme */
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  
+  /* Chip/Button glass - Light theme */
+  --chip-bg: rgba(255, 255, 255, 0.6);
+  --chip-bg-hover: rgba(255, 255, 255, 0.8);
+  --chip-border: rgba(0, 0, 0, 0.1);
+  --chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  
+  /* Focus ring */
+  --focus-ring: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  --focus-ring-inset: inset 0 0 0 2px rgba(59, 130, 246, 0.5);
+  
+  /* Accent color */
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+  
+  /* Interactive states */
+  --hover-lift: translateY(-2px);
+}
+
+[data-theme="dark"] {
+  /* Glass surfaces - Dark theme */
+  --glass-bg: rgba(31, 41, 55, 0.8);
+  --glass-bg-2: rgba(31, 41, 55, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.5);
+  
+  /* Text colors - Dark theme */
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  
+  /* Chip/Button glass - Dark theme */
+  --chip-bg: rgba(31, 41, 55, 0.7);
+  --chip-bg-hover: rgba(31, 41, 55, 0.85);
+  --chip-border: rgba(255, 255, 255, 0.15);
+  --chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  
+  /* Focus ring - Dark theme */
+  --focus-ring: 0 0 0 3px rgba(96, 165, 250, 0.5);
+  --focus-ring-inset: inset 0 0 0 2px rgba(96, 165, 250, 0.5);
+  
+  /* Accent color - Dark theme */
+  --accent-color: #60a5fa;
+  --accent-hover: #3b82f6;
+}
+
+/* Fallback for browsers without backdrop-filter support */
+@supports not (backdrop-filter: blur(1px)) {
+  :root {
+    --glass-bg: rgba(255, 255, 255, 0.95);
+    --glass-bg-2: rgba(255, 255, 255, 0.98);
+    --glass-border: rgba(0, 0, 0, 0.12);
+  }
+  
+  [data-theme="dark"] {
+    --glass-bg: rgba(31, 41, 55, 0.95);
+    --glass-bg-2: rgba(31, 41, 55, 0.98);
+    --glass-border: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --hover-lift: none;
+  }
+}
+

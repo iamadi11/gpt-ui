@@ -35,6 +35,9 @@ export interface ExtensionSettings {
   pageUxEnabled?: boolean; // V5: Enable comprehensive page UX updates
   highlightExternalLinks?: boolean; // V5: Highlight external links in messages
   showKnowledgeMiniPanel?: boolean; // V5: Show knowledge mini-panel in messages
+  // Glassmorphism theme
+  glassmorphismEnabled?: boolean; // Enable glassmorphism visual style
+  glassIntensity?: 'subtle' | 'normal' | 'strong'; // Glassmorphism blur intensity
 }
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {

@@ -25,6 +25,13 @@ export function mountApp(
   const theme = detectTheme();
   container.setAttribute('data-theme', theme);
   
+  // Apply glassmorphism settings
+  const glassEnabled = props.settings.glassmorphismEnabled !== false; // default true
+  container.setAttribute('data-glass-enabled', glassEnabled ? 'true' : 'false');
+  
+  const glassIntensity = props.settings.glassIntensity || 'normal';
+  container.setAttribute('data-glass-intensity', glassIntensity);
+  
   // Create React root and render
   const root = createRoot(container);
   root.render(React.createElement(App, props));

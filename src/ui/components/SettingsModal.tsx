@@ -255,6 +255,66 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
+          {/* Glassmorphism Theme Settings */}
+          <h3 className="settings-section-title" style={{ marginTop: '32px', marginBottom: '16px' }}>
+            Glass Theme
+          </h3>
+
+          <div className="settings-item">
+            <label className="settings-label">
+              <input
+                type="checkbox"
+                checked={localSettings.glassmorphismEnabled !== false}
+                onChange={(e) => handleChange('glassmorphismEnabled' as any, e.target.checked)}
+              />
+              Enable glassmorphism visual style
+            </label>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px', marginLeft: '24px' }}>
+              Modern translucent glass effect with backdrop blur
+            </p>
+          </div>
+
+          {localSettings.glassmorphismEnabled !== false && (
+            <div className="settings-item">
+              <label className="settings-label">Glass intensity</label>
+              <div className="settings-radio-group">
+                <label>
+                  <input
+                    type="radio"
+                    name="glassIntensity"
+                    value="subtle"
+                    checked={localSettings.glassIntensity === 'subtle'}
+                    onChange={(e) => handleChange('glassIntensity' as any, e.target.value as 'subtle' | 'normal' | 'strong')}
+                  />
+                  Subtle
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="glassIntensity"
+                    value="normal"
+                    checked={localSettings.glassIntensity === 'normal' || !localSettings.glassIntensity}
+                    onChange={(e) => handleChange('glassIntensity' as any, e.target.value as 'subtle' | 'normal' | 'strong')}
+                  />
+                  Normal
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="glassIntensity"
+                    value="strong"
+                    checked={localSettings.glassIntensity === 'strong'}
+                    onChange={(e) => handleChange('glassIntensity' as any, e.target.value as 'subtle' | 'normal' | 'strong')}
+                  />
+                  Strong
+                </label>
+              </div>
+              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Adjusts blur amount and background opacity
+              </p>
+            </div>
+          )}
+
           {/* V3.1: Privacy Controls */}
           <div className="settings-item">
             <div className="settings-label" style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>

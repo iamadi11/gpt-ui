@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import type { Result, ExtensionSettings } from '../types';
-import { Filters } from './Filters';
-import { ResultCard } from './ResultCard';
-import { GroupedResults } from './GroupedResults';
-import { EmptyState } from './EmptyState';
+import { ResultsTab } from './ResultsTab';
+import { PinsTab } from '../tabs/PinsTab';
+import { HistoryTab } from '../tabs/HistoryTab';
+import { SplitView } from './SplitView';
+import { PreviewPane } from './PreviewPane';
 
 interface PanelProps {
   results: Result[];
@@ -11,8 +12,12 @@ interface PanelProps {
   onClose: () => void;
   onOpenSettings?: () => void;
   onHighlight?: (sourceNodeSelectorHint: string, url: string, sourceMessageId?: string) => void;
+  onPin?: (result: Result) => void;
+  isPinned?: (id: string) => boolean;
   lastUpdated?: Date;
 }
+
+type TabType = 'results' | 'pins' | 'history';
 
 export const Panel: React.FC<PanelProps> = ({
   results,
@@ -20,66 +25,13 @@ export const Panel: React.FC<PanelProps> = ({
   onClose,
   onOpenSettings,
   onHighlight,
+  onPin,
+  isPinned,
   lastUpdated,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'original' | 'domain' | 'title'>('original');
-  const [showGrouped, setShowGrouped] = useState(
-    settings.defaultView === 'grouped' || settings.showGroupedByDomain === true
-  );
-
-  // Get all unique tags
-  const allTags = useMemo(() => {
-    const tagSet = new Set<string>();
-    results.forEach((r) => {
-      r.tags?.forEach((tag) => tagSet.add(tag));
-    });
-    return Array.from(tagSet).sort();
-  }, [results]);
-
-  // Filter and sort results
-  const filteredResults = useMemo(() => {
-    let filtered = results;
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (r) =>
-          r.title.toLowerCase().includes(query) ||
-          r.domain.toLowerCase().includes(query) ||
-          r.snippet.toLowerCase().includes(query)
-      );
-    }
-
-    // Filter by tag
-    if (selectedTag) {
-      filtered = filtered.filter((r) => r.tags?.includes(selectedTag));
-    }
-
-    // Sort
-    if (sortBy === 'domain') {
-      filtered = [...filtered].sort((a, b) => a.domain.localeCompare(b.domain));
-    } else if (sortBy === 'title') {
-      filtered = [...filtered].sort((a, b) => a.title.localeCompare(b.title));
-    } else {
-      // Original order (by position)
-      filtered = [...filtered].sort((a, b) => a.position - b.position);
-    }
-
-    return filtered;
-  }, [results, searchQuery, selectedTag, sortBy]);
-
-  // Top results (first 4-6)
-  const topResults = useMemo(() => {
-    return filteredResults.slice(0, 6);
-  }, [filteredResults]);
-
-  // Results beyond top (for "All results" view)
-  const remainingResults = useMemo(() => {
-    return filteredResults.slice(6);
-  }, [filteredResults]);
+  const [activeTab, setActiveTab] = useState<TabType>(settings.defaultTab || 'results');
+  const [previewResult, setPreviewResult] = useState<Result | null>(null);
+  const [splitMode, setSplitMode] = useState(false);
 
   const handleOpen = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -101,21 +53,90 @@ export const Panel: React.FC<PanelProps> = ({
     }
   };
 
-  const handleHighlight = (sourceNodeSelectorHint: string, url: string, sourceMessageId?: string) => {
-    if (onHighlight) {
-      onHighlight(sourceNodeSelectorHint, url, sourceMessageId);
+  const handlePin = (result: Result) => {
+    if (onPin) {
+      onPin(result);
     }
+  };
+
+  const handlePreview = (result: Result) => {
+    setPreviewResult(result);
+    if (settings.autoOpenPreview) {
+      setSplitMode(true);
+    }
+  };
+
+  const handleClosePreview = () => {
+    setPreviewResult(null);
+    setSplitMode(false);
   };
 
   const isMobile = window.innerWidth < 900;
   const panelClass = `panel-container ${settings.panelPosition} ${isMobile ? 'bottom-sheet' : ''}`;
-  const viewMode = settings.defaultView || 'top';
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'results':
+        return (
+          <ResultsTab
+            results={results}
+            settings={settings}
+            onOpen={handleOpen}
+            onCopyLink={handleCopyLink}
+            onCopyCitation={handleCopyCitation}
+            onHighlight={onHighlight || (() => {})}
+            onPin={handlePin}
+            onPreview={handlePreview}
+            isPinned={isPinned}
+          />
+        );
+      case 'pins':
+        return (
+          <PinsTab
+            onOpen={handleOpen}
+            onCopyLink={handleCopyLink}
+            onCopyCitation={handleCopyCitation}
+          />
+        );
+      case 'history':
+        return <HistoryTab />;
+      default:
+        return null;
+    }
+  };
+
+  const content = splitMode && previewResult && activeTab === 'results' ? (
+    <SplitView
+      left={renderTabContent()}
+      right={
+        <PreviewPane
+          result={previewResult}
+          onClose={handleClosePreview}
+          onPin={handlePin}
+          isPinned={isPinned?.(previewResult.id)}
+        />
+      }
+      splitPosition={50}
+    />
+  ) : (
+    renderTabContent()
+  );
 
   return (
     <div className={panelClass}>
       <div className="panel-header">
         <h2 className="panel-title">Enhanced Results</h2>
         <div className="panel-header-actions">
+          {activeTab === 'results' && previewResult && (
+            <button
+              className="view-toggle-button"
+              onClick={() => setSplitMode(!splitMode)}
+              aria-label={splitMode ? 'List view' : 'Split view'}
+              title={splitMode ? 'List view' : 'Split view'}
+            >
+              {splitMode ? '📋 List' : '👁️ Split'}
+            </button>
+          )}
           {onOpenSettings && (
             <button
               className="settings-button-header"
@@ -132,95 +153,54 @@ export const Panel: React.FC<PanelProps> = ({
         </div>
       </div>
 
+      <div className="tab-navigation">
+        <button
+          className={`tab-button ${activeTab === 'results' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('results');
+            setSplitMode(false);
+            setPreviewResult(null);
+          }}
+          aria-label="Results tab"
+        >
+          Results
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'pins' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('pins');
+            setSplitMode(false);
+            setPreviewResult(null);
+          }}
+          aria-label="Pins tab"
+        >
+          Pins
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('history');
+            setSplitMode(false);
+            setPreviewResult(null);
+          }}
+          aria-label="History tab"
+        >
+          History
+        </button>
+      </div>
+
       <div className="panel-content">
-        {results.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <>
-            <Filters
-              results={results}
-              selectedTag={selectedTag}
-              onTagSelect={setSelectedTag}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              sortBy={sortBy}
-              onSortChange={setSortBy}
-              allTags={allTags}
-            />
-
-            {showGrouped ? (
-              <GroupedResults
-                results={filteredResults}
-                onOpen={handleOpen}
-                onCopyLink={handleCopyLink}
-                onCopyCitation={handleCopyCitation}
-                onHighlight={handleHighlight}
-              />
-            ) : (
-              <div>
-                {/* Top Results Section */}
-                {viewMode === 'top' && topResults.length > 0 && (
-                  <div className="results-section">
-                    <div className="group-header">Top Results ({topResults.length})</div>
-                    {topResults.map((result) => (
-                      <ResultCard
-                        key={result.id}
-                        result={result}
-                        onOpen={handleOpen}
-                        onCopyLink={handleCopyLink}
-                        onCopyCitation={handleCopyCitation}
-                        onHighlight={handleHighlight}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {/* All Results Section */}
-                {(viewMode === 'all' || (viewMode === 'top' && remainingResults.length > 0)) && (
-                  <div className="results-section">
-                    <div className="group-header">
-                      {viewMode === 'top'
-                        ? `All Results (${filteredResults.length})`
-                        : filteredResults.length === results.length
-                        ? `All Results (${filteredResults.length})`
-                        : `Filtered Results (${filteredResults.length} of ${results.length})`}
-                    </div>
-                    {(viewMode === 'all' ? filteredResults : remainingResults).map((result) => (
-                      <ResultCard
-                        key={result.id}
-                        result={result}
-                        onOpen={handleOpen}
-                        onCopyLink={handleCopyLink}
-                        onCopyCitation={handleCopyCitation}
-                        onHighlight={handleHighlight}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* View Toggle */}
-            <div style={{ marginTop: '16px', textAlign: 'center' }}>
-              <button
-                className="sort-button"
-                onClick={() => setShowGrouped(!showGrouped)}
-                style={{ fontSize: '12px' }}
-                aria-label={showGrouped ? 'Show flat list' : 'Show grouped by domain'}
-              >
-                {showGrouped ? 'Show Flat List' : 'Show Grouped by Domain'}
-              </button>
-            </div>
-          </>
-        )}
+        {content}
       </div>
 
       {lastUpdated && (
         <div className="panel-footer">
           <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
-          <span style={{ marginLeft: '12px' }}>
-            {filteredResults.length} {filteredResults.length === 1 ? 'result' : 'results'}
-          </span>
+          {activeTab === 'results' && (
+            <span style={{ marginLeft: '12px' }}>
+              {results.length} {results.length === 1 ? 'result' : 'results'}
+            </span>
+          )}
         </div>
       )}
     </div>

@@ -1,65 +1,54 @@
-# GPT UI - Enhanced Search Results V2
+# GPT UI - Enhanced Search Results V3
 
 A Chrome Extension (Manifest V3) that enhances ChatGPT search responses by rendering a more graphical, Google-like results UI inside the ChatGPT page as an overlay panel.
 
-## V2 Features
+## V3 Features
 
-### Better Detection & Extraction
-- ✅ Improved DOM heuristics to reliably detect "search-like" assistant messages
-- ✅ Detects presence of "Sources", "Citations", "References" headers (case-insensitive)
-- ✅ Identifies multiple outbound links and citation-style link clusters
-- ✅ Enhanced Result model with stable IDs, source message tracking, and tags
-- ✅ Smart URL normalization and deduplication (collapses http/https, removes UTM params)
-- ✅ Fast O(n) extraction algorithm
+### 🎯 Preview Mode (Safe, Permission-Minimal)
+- **Inline iframe preview**: Click "Preview" to view content in a split-panel view
+- **Smart fallback**: Detects X-Frame-Options blocking and shows helpful error message
+- **Security-first**: Uses sandboxed iframe with `referrerPolicy="no-referrer"`
+- **Quick actions**: When preview is blocked, shows Open/Copy actions
+- **Toggle view**: Switch between List and Split preview modes
 
-### UI/UX Upgrades
-- ✅ Right-side panel on desktop; bottom sheet on small widths (< 900px)
-- ✅ Panel sections:
-  - Top results (first 4–6)
-  - Grouped by domain (collapsible)
-  - All results (full list)
-- ✅ Search-in-results (client-side filter)
-- ✅ Filter chips by tag (Docs/News/Video/Forums/All) based on domain heuristics
-- ✅ Sort: Original | Domain | Title
-- ✅ Toggle: Grouped view ON/OFF
-- ✅ Result cards with:
-  - Favicon via Chrome's internal `chrome://favicon2` service
-  - Title + domain + snippet
-  - Actions: Open, Copy link, Copy citation, Highlight in chat
-  - Duplicate count badge
-  - Tag indicators
+### 📌 Pinboard / Collections
+- **Save results**: Pin any result to save it for later
+- **Collections/Folders**: Organize pins into folders (local only)
+- **Search & filter**: Search pins, filter by domain/tag, sort by date/domain/title
+- **Bulk actions**: Select multiple pins to remove or move to folders
+- **Export**: Export pins as JSON or Markdown (download via blob, no server)
+- **"Seen again" indicator**: Shows "Pinned" badge when same URL appears in new chats
 
-### Settings & Controls
-- ✅ Floating toggle button (non-intrusive) near bottom-right
-- ✅ Keyboard shortcuts:
-  - `Cmd/Ctrl+Shift+E`: toggle panel
-  - `Cmd/Ctrl+Shift+H`: highlight sources in chat (toggle)
-- ✅ Settings modal with:
-  - Enabled toggle
-  - Panel position: Right | Left (desktop)
-  - Default view: Top/All/Grouped
-  - Auto-open panel when sources detected
-  - Highlight sources in chat
-  - Snippet length slider (120–320 chars)
+### 🕒 Session History
+- **Privacy-preserving**: Stores only metadata (domains, counts, hashed IDs) - no chat text
+- **Recent sessions**: View last 50 sessions with date/time and result counts
+- **Domain preview**: See which domains were referenced in each session
+- **Clear history**: One-click clear all history and cached data
 
-### Theming & Accessibility
-- ✅ Automatically matches ChatGPT theme (light/dark)
-- ✅ CSS variables for seamless theme switching
-- ✅ Keyboard navigable panel
-- ✅ ARIA labels on buttons
-- ✅ Color contrast compliant
+### ⌨️ Command Palette (Power User)
+- **Cmd/Ctrl+K**: Open command palette for quick actions
+- **Searchable commands**: Type to filter commands
+- **Keyboard navigation**: Arrow keys + Enter to execute
+- **Commands available**:
+  - Toggle panel
+  - Switch tabs (Results/Pins/History)
+  - Open settings
+  - Toggle highlight sources
 
-### Robustness
-- ✅ Layered selectors (semantic markers, fallback heuristics)
-- ✅ MutationObserver with debouncing (300ms)
-- ✅ Ignores mutations from own Shadow DOM
-- ✅ Graceful empty state with helpful CTAs
+### 🎯 Smarter Ranking
+- **Local-only scoring**: No AI or external calls
+- **Domain diversity**: Prefers unique domains in top results
+- **Documentation boost**: Prioritizes docs.*, developer.*, github.com, MDN, etc.
+- **Quality signals**: Boosts results with meaningful snippets and reasonable title lengths
+- **De-boost trackers**: Reduces ranking for obvious redirect/tracker URLs
 
-### Performance
-- ✅ React + TypeScript
-- ✅ Vite build for MV3 extension
-- ✅ Modular code organization
-- ✅ Unit tests with Vitest (URL normalization, hashing, domain tagging)
+### V2 Features (Carried Forward)
+- ✅ Enhanced detection with improved heuristics
+- ✅ Tag filtering (News/Docs/Video/Forums)
+- ✅ Smart URL normalization and deduplication
+- ✅ Theme auto-detection (light/dark)
+- ✅ Keyboard shortcuts (Cmd/Ctrl+Shift+E, Cmd/Ctrl+Shift+H)
+- ✅ Responsive design (desktop panel, mobile bottom sheet)
 
 ## Installation
 
@@ -79,10 +68,6 @@ A Chrome Extension (Manifest V3) that enhances ChatGPT search responses by rende
    ```bash
    npm run generate-icons
    ```
-   
-   This automatically creates three PNG icons in `public/icons/` with a search emoji on a blue background.
-   
-   If you prefer custom icons, you can replace the generated files with your own.
 
 3. **Build the extension:**
    ```bash
@@ -129,64 +114,93 @@ The extension uses resilient selectors and heuristics to detect search results:
    - Tracks duplicates with count badges
    - Keeps first occurrence position
 
-### UI Components
+4. **Ranking** (V3):
+   - Scores results locally using domain diversity, snippet quality, title length, and domain tags
+   - Prioritizes documentation sources
+   - De-boosts tracker/redirect URLs
 
-- **Panel**: Right-side overlay (or bottom sheet on mobile) with search results
-- **Result Cards**: Display favicon (via `chrome://favicon2`), title, domain, snippet, tags, and action buttons
-- **Filters**: Search input, tag chips, sort controls
-- **Grouped View**: Collapsible domain groups
-- **Toggle Button**: Floating button to show/hide panel
-- **Settings Modal**: Comprehensive settings UI
+### Preview Mode
+
+Preview uses sandboxed iframes with security best practices:
+- **Sandbox attributes**: `allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin`
+- **Referrer policy**: `no-referrer` to protect privacy
+- **Error detection**: 5-second timeout detects X-Frame-Options blocking
+- **Fallback UI**: Shows helpful message when embedding is blocked
+
+**Why some sites block embedding**: Many sites use X-Frame-Options or CSP `frame-ancestors` to prevent clickjacking. This is a security feature, not a bug.
 
 ### Privacy & Security
 
 - ✅ **No External APIs**: All processing happens in your browser
 - ✅ **No Data Collection**: No telemetry, analytics, or data export
 - ✅ **No Remote Script Injection**: Bundle everything locally
-- ✅ **Minimal Permissions**: Only requires `storage` permission and access to ChatGPT domains (`https://chatgpt.com/*`, `https://chat.openai.com/*`)
-- ✅ **Local Storage Only**: Settings stored locally via `chrome.storage.local`
+- ✅ **Minimal Permissions**: Only requires `storage` permission and access to ChatGPT domains
 - ✅ **No Chat Text Storage**: Only stores minimal derived link metadata (URLs/domains) for caching
+- ✅ **Hashed IDs**: Chat/conversation IDs are hashed before storage
+- ✅ **Local Storage Only**: Settings, pins, and history stored via `chrome.storage.local`
 - ✅ **Shadow DOM**: UI is isolated to prevent CSS conflicts with ChatGPT
-- ✅ **No Favicon Fetching**: Uses Chrome's internal favicon service (no host permissions needed)
+- ✅ **No Favicon Fetching**: Uses Chrome's internal `chrome://favicon2` service
+
+### What Gets Stored Locally
+
+- **Settings**: User preferences (panel position, default tab, etc.)
+- **Pins**: URL, title, domain, tags, notes, folder assignments, timestamps
+- **History**: Session metadata (domain lists, result counts, hashed IDs)
+- **Cache**: LRU cache of URL metadata (max 200 items)
+
+**What does NOT get stored:**
+- ChatGPT message text
+- Chat conversation content
+- Personal information
+- Browsing history outside of extension usage
 
 ## Usage
 
 1. **Open ChatGPT**: Navigate to `chatgpt.com` or `chat.openai.com`
 
-2. **Trigger Search Results**: Ask ChatGPT a question that typically returns sources, for example:
-   - "What are the latest developments in AI?"
-   - "Search for information about climate change"
-   - "Find recent articles about TypeScript"
+2. **Trigger Search Results**: Ask ChatGPT a question that typically returns sources
 
 3. **View Enhanced Results**: 
-   - The extension automatically detects results and shows a toggle button (🔍)
-   - Click the toggle button or press `Cmd/Ctrl+Shift+E` to open the panel
-   - Browse, search, filter, and interact with results
+   - Click the toggle button (🔍) or press `Cmd/Ctrl+Shift+E`
+   - Browse results in the panel
+   - Use tabs to switch between Results, Pins, and History
 
-4. **Actions Available**:
-   - **Open**: Open result in new tab
-   - **Copy link**: Copy URL to clipboard
-   - **Copy citation**: Copy formatted citation `[title] (domain) - url`
-   - **Highlight**: Scroll to and highlight the original link in the chat
-   - **Filter by tags**: Click tag chips to filter (News, Docs, Video, Forum, etc.)
-   - **Sort**: Change sort order (Original, Domain, Title)
+4. **Preview Content**:
+   - Click "Preview" on any result to view in split mode
+   - Toggle between List and Split views
+   - Some sites block embedding (X-Frame-Options) - you'll see a helpful message
 
-5. **Keyboard Shortcuts**:
+5. **Pin Results**:
+   - Click "Pin" on any result to save it
+   - View pins in the Pins tab
+   - Organize into folders
+   - Export as JSON or Markdown
+
+6. **Command Palette**:
+   - Press `Cmd/Ctrl+K` to open
+   - Type to search commands
+   - Use arrow keys and Enter to execute
+
+7. **Keyboard Shortcuts**:
    - `Cmd/Ctrl+Shift+E`: Toggle panel visibility
    - `Cmd/Ctrl+Shift+H`: Toggle highlight all sources in chat
-
-6. **Settings**: Click the ⚙️ icon in the panel header to access settings
+   - `Cmd/Ctrl+K`: Open command palette
 
 ## Settings
 
-Settings are stored locally and can be accessed via the Settings modal:
+Access settings via the ⚙️ icon in the panel header:
 
-- `enabled`: Enable/disable the extension (default: `true`)
-- `panelPosition`: Panel position - `left` or `right` (default: `right`)
-- `defaultView`: Default view mode - `top`, `all`, or `grouped` (default: `top`)
-- `autoOpenPanel`: Auto-open panel when sources detected (default: `true`)
-- `highlightSourcesInChat`: Highlight sources in chat on toggle (default: `false`)
-- `snippetLength`: Snippet length in characters, 120–320 (default: `150`)
+- **Enabled**: Enable/disable the extension
+- **Panel Position**: Right or Left (desktop)
+- **Default Tab**: Results, Pins, or History
+- **Default View**: Top Results, All Results, or Grouped by Domain
+- **Auto-open panel**: Auto-open when sources detected
+- **Auto-open preview**: Auto-open preview in split mode when clicking result
+- **Highlight sources**: Highlight sources in chat on toggle
+- **Enable top ranking**: Use smart ranking for top results
+- **Enable history**: Track session history
+- **Snippet length**: Configure snippet length (120–320 chars)
+- **Clear all data**: Delete all pins, history, and cache (settings preserved)
 
 ## Development
 
@@ -195,42 +209,49 @@ Settings are stored locally and can be accessed via the Settings modal:
 ```
 gpt-ui/
 ├── src/
-│   ├── content/              # Content script (runs on ChatGPT pages)
-│   │   ├── index.tsx         # Main entry point, DOM observation
-│   │   ├── mount.tsx         # React mounting in Shadow DOM
-│   │   ├── observer.ts       # MutationObserver with debouncing
-│   │   ├── highlight.ts      # Chat highlighting functionality
+│   ├── content/              # Content script
+│   │   ├── index.tsx         # Main entry point
+│   │   ├── mount.tsx         # React mounting
+│   │   ├── observer.ts       # MutationObserver
+│   │   ├── highlight.ts      # Chat highlighting
 │   │   ├── extractor/        # Result extraction
-│   │   │   ├── index.ts      # Main extractor
-│   │   │   ├── heuristics.ts # Detection heuristics
-│   │   │   ├── snippet.ts    # Snippet extraction
-│   │   │   └── normalizeUrl.ts
-│   │   ├── selectors.ts      # Resilient selectors/heuristics
-│   │   └── styles.css        # Panel styles with theming
-│   ├── ui/                   # React UI components
+│   │   │   ├── index.ts
+│   │   │   ├── heuristics.ts
+│   │   │   ├── snippet.ts
+│   │   │   ├── rank.ts       # V3 ranking
+│   │   │   └── __tests__/
+│   │   ├── selectors.ts
+│   │   └── styles.css
+│   ├── ui/                   # React UI
 │   │   ├── App.tsx
-│   │   ├── theme.ts          # Theme detection
-│   │   └── components/
-│   │       ├── Panel.tsx
-│   │       ├── ResultCard.tsx
-│   │       ├── Filters.tsx
-│   │       ├── GroupedResults.tsx
-│   │       ├── SettingsModal.tsx
-│   │       └── EmptyState.tsx
+│   │   ├── theme.ts
+│   │   ├── tabs/             # V3 tabs
+│   │   │   ├── PinsTab.tsx
+│   │   │   └── HistoryTab.tsx
+│   │   ├── components/
+│   │   │   ├── Panel.tsx
+│   │   │   ├── ResultsTab.tsx
+│   │   │   ├── PreviewPane.tsx
+│   │   │   ├── SplitView.tsx
+│   │   │   ├── CommandPalette.tsx
+│   │   │   ├── PinItemCard.tsx
+│   │   │   └── ...
+│   │   └── hooks/
+│   │       ├── usePins.ts
+│   │       ├── useHistory.ts
+│   │       └── useCommandPalette.ts
 │   └── shared/               # Shared utilities
 │       ├── types.ts
-│       ├── storage.ts
+│       ├── storage-v3.ts     # V3 storage with migrations
 │       └── utils/
 │           ├── url.ts
 │           ├── hash.ts
 │           ├── tags.ts
-│           ├── text.ts
-│           └── debounce.ts
+│           └── download.ts   # V3 export
 ├── public/
-│   └── icons/                # Extension icons
-├── manifest.json             # Chrome extension manifest
-├── vite.config.ts            # Vite build configuration
-├── vitest.config.ts          # Vitest test configuration
+│   └── icons/
+├── manifest.json
+├── vite.config.ts
 └── package.json
 ```
 
@@ -245,29 +266,32 @@ gpt-ui/
 
 See [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) for comprehensive testing guidelines.
 
-Unit tests are available for:
+Unit tests cover:
 - URL normalization and deduplication
 - Hash generation
 - Domain tagging heuristics
+- Ranking logic (V3)
 
 Run tests with:
 ```bash
 npm test
 ```
 
-### Known Limitations
+## Known Limitations
 
 1. **ChatGPT DOM Changes**: ChatGPT's DOM structure may change, requiring selector updates. The extension uses layered selectors and heuristics to be resilient, but major UI overhauls may require updates.
 
-2. **Streaming Detection**: Some streaming updates may be missed; extension uses MutationObserver with 300ms debouncing for optimal performance.
+2. **Preview Blocking**: Many sites block embedding via X-Frame-Options or CSP. This is a security feature - the extension detects this and shows a fallback message.
 
-3. **X-Frame Restrictions**: Some sites may block being loaded in iframes (not applicable here, but mentioned for completeness).
+3. **Streaming Detection**: Some streaming updates may be missed; extension uses MutationObserver with 300ms debouncing for optimal performance.
 
 4. **Highlight Accuracy**: Highlighting relies on selector hints; if ChatGPT changes its DOM structure significantly, highlights may not work until selectors are updated.
 
 5. **Favicon Loading**: Uses Chrome's internal `chrome://favicon2` service, which may not always have favicons for all domains.
 
-### Troubleshooting
+6. **Storage Limits**: Pins max 2000, history max 50 sessions, cache max 200 items (enforced with LRU eviction).
+
+## Troubleshooting
 
 **Extension not working:**
 - Check browser console for errors (`F12` → Console)
@@ -275,21 +299,20 @@ npm test
 - Ensure you're on `chatgpt.com` or `chat.openai.com`
 - Try reloading the page
 
-**No results detected:**
-- Make sure the assistant message contains external links
-- Try a different prompt that typically returns sources
-- Check if links are actually external (not ChatGPT/OpenAI domains)
-- Look for messages with "Sources", "Citations", or "References" text
+**Preview not working:**
+- Many sites block iframe embedding (X-Frame-Options) - this is expected
+- Use "Open in new tab" instead
+- Check browser console for iframe errors
 
-**Styling issues:**
-- Extension uses Shadow DOM to isolate styles
-- Theme detection should automatically match ChatGPT's theme
-- If theme detection fails, try toggling ChatGPT's theme and reloading
+**Pins not saving:**
+- Check storage quota (chrome://extensions → extension → Details → Storage)
+- Verify extension has storage permission
+- Check browser console for errors
 
-**Highlight not working:**
-- Ensure the source link is still visible in the chat
-- Try scrolling to the message manually first
-- Check browser console for selector errors
+**Command palette not opening:**
+- Ensure panel is visible first
+- Try `Cmd/Ctrl+K` when panel is open
+- Check for conflicts with ChatGPT keyboard shortcuts
 
 ## Contributing
 

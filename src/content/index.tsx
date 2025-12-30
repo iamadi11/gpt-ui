@@ -1,10 +1,12 @@
 import { extractResults } from './extractor/index';
-import { getSettings, setSettings } from '../shared/storage';
+import { getSettings, setSettings, addSession, updatePin } from '../shared/storage';
 import type { Result, ExtensionSettings } from '../shared/types';
 import { mountApp } from './mount';
 import { createObserver, findConversationRoot } from './observer';
 import { highlightInChat, toggleHighlights } from './highlight';
 import { detectTheme } from '../ui/theme';
+import { hashUrl } from '../shared/utils/hash';
+import { normalizeUrl } from '../shared/utils/url';
 // Import CSS as inline string for shadow DOM injection
 // @ts-ignore - Vite handles ?inline
 import stylesText from './styles.css?inline';
@@ -278,12 +280,40 @@ function renderPanel() {
   }
 }
 
+// Get a stable hash for the current chat/conversation
+function getChatIdHash(): string | undefined {
+  try {
+    // Try to find conversation ID from URL or DOM
+    const url = window.location.href;
+    const urlMatch = url.match(/\/c\/([a-f0-9-]+)/);
+    if (urlMatch) {
+      return hashUrl(urlMatch[1]);
+    }
+    
+    // Try to find from DOM
+    const chatIdElement = document.querySelector('[data-conversation-id], [data-chat-id], [id*="conversation"]');
+    if (chatIdElement) {
+      const id = chatIdElement.getAttribute('data-conversation-id') || 
+                 chatIdElement.getAttribute('data-chat-id') ||
+                 chatIdElement.id;
+      if (id) {
+        return hashUrl(id);
+      }
+    }
+    
+    // Fallback: hash the entire URL path
+    return hashUrl(window.location.pathname);
+  } catch {
+    return undefined;
+  }
+}
+
 // Extract and update results
 const updateResults = (() => {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
   return () => {
     if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
+    timeoutId = setTimeout(async () => {
       if (!currentSettings.enabled) return;
 
       const newResults = extractResults(currentSettings.snippetLength || 150);
@@ -295,6 +325,41 @@ const updateResults = (() => {
       
       if (resultsChanged) {
         currentResults = newResults;
+        
+        // Track session if history enabled
+        if (currentSettings.historyEnabled && newResults.length > 0) {
+          const chatIdHash = getChatIdHash();
+          const topDomains = Array.from(new Set(newResults.map(r => r.domain))).slice(0, 3);
+          
+          try {
+            await addSession({
+              chatIdHash,
+              resultCount: newResults.length,
+              domainsTop: topDomains,
+              resultIds: newResults.map(r => r.id),
+            });
+          } catch (error) {
+            console.error('Error adding session:', error);
+          }
+        }
+        
+        // Update lastSeenAt for pinned items
+        if (newResults.length > 0) {
+          try {
+            for (const result of newResults) {
+              const normalizedUrl = normalizeUrl(result.url);
+              const pinId = hashUrl(normalizedUrl);
+              // Check if pinned and update lastSeenAt
+              // This is best-effort, won't fail if not pinned
+              await updatePin(pinId, { lastSeenAt: Date.now() }).catch(() => {
+                // Ignore errors (item might not be pinned)
+              });
+            }
+          } catch (error) {
+            // Ignore errors in pin updates
+            console.debug('Error updating pin timestamps:', error);
+          }
+        }
         
         // Auto-open panel if enabled and results detected
         if (currentSettings.autoOpenPanel && newResults.length > 0 && !isVisible) {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { ExtensionSettings } from '../types';
+import { clearAllData } from '../../shared/storage';
 
 interface SettingsModalProps {
   settings: ExtensionSettings;
@@ -13,6 +14,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
 }) => {
   const [localSettings, setLocalSettings] = useState<ExtensionSettings>(settings);
+
+  const handleClearAllData = async () => {
+    if (window.confirm('Clear all data (pins, history, cache)? This cannot be undone.')) {
+      await clearAllData();
+      // Reload page to reflect changes
+      window.location.reload();
+    }
+  };
 
   useEffect(() => {
     setLocalSettings(settings);
@@ -84,6 +93,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
+          {/* Default Tab */}
+          <div className="settings-item">
+            <label className="settings-label">Default Tab</label>
+            <select
+              value={localSettings.defaultTab || 'results'}
+              onChange={(e) => handleChange('defaultTab', e.target.value as 'results' | 'pins' | 'history')}
+              className="settings-select"
+            >
+              <option value="results">Results</option>
+              <option value="pins">Pins</option>
+              <option value="history">History</option>
+            </select>
+          </div>
+
           {/* Default View */}
           <div className="settings-item">
             <label className="settings-label">Default View</label>
@@ -110,6 +133,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </label>
           </div>
 
+          {/* Auto-open Preview */}
+          <div className="settings-item">
+            <label className="settings-label">
+              <input
+                type="checkbox"
+                checked={localSettings.autoOpenPreview || false}
+                onChange={(e) => handleChange('autoOpenPreview', e.target.checked)}
+              />
+              <span>Auto-open preview in split mode when clicking a result</span>
+            </label>
+          </div>
+
           {/* Highlight Sources */}
           <div className="settings-item">
             <label className="settings-label">
@@ -119,6 +154,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 onChange={(e) => handleChange('highlightSourcesInChat', e.target.checked)}
               />
               <span>Highlight sources in chat</span>
+            </label>
+          </div>
+
+          {/* Enable Top Ranking */}
+          <div className="settings-item">
+            <label className="settings-label">
+              <input
+                type="checkbox"
+                checked={localSettings.enableTopRanking !== false}
+                onChange={(e) => handleChange('enableTopRanking', e.target.checked)}
+              />
+              <span>Enable smart ranking for top results</span>
+            </label>
+          </div>
+
+          {/* History Enabled */}
+          <div className="settings-item">
+            <label className="settings-label">
+              <input
+                type="checkbox"
+                checked={localSettings.historyEnabled !== false}
+                onChange={(e) => handleChange('historyEnabled', e.target.checked)}
+              />
+              <span>Enable session history</span>
             </label>
           </div>
 
@@ -139,6 +198,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="settings-slider-labels">
               <span>120</span>
               <span>320</span>
+            </div>
+          </div>
+
+          {/* Clear All Data */}
+          <div className="settings-item">
+            <div className="settings-label">Data Management</div>
+            <button
+              className="settings-button danger"
+              onClick={handleClearAllData}
+              style={{ marginTop: '8px' }}
+            >
+              Clear All Data
+            </button>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+              This will delete all pins, history, and cached data. Settings will be preserved.
             </div>
           </div>
         </div>

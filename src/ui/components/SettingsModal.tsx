@@ -8,6 +8,18 @@ interface SettingsModalProps {
   onClose: () => void;
 }
 
+// Get extension version from manifest
+const getExtensionVersion = (): string => {
+  try {
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
+      return chrome.runtime.getManifest().version || '3.1.0';
+    }
+  } catch {
+    // Fallback if chrome.runtime is not available
+  }
+  return '3.1.0';
+};
+
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   settings,
   onSave,
@@ -318,6 +330,52 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
                 This will delete all data including settings. Complete reset.
               </div>
+            </div>
+          </div>
+
+          {/* About Section */}
+          <div className="settings-item" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--border-color)' }}>
+            <div className="settings-label" style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+              About
+            </div>
+            <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginBottom: '8px' }}>
+              <strong>SourceLens</strong> v{getExtensionVersion()}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '12px', lineHeight: '1.5' }}>
+              Enhanced search results panel for AI chat interfaces.
+              <br />
+              Privacy-first, local-only processing.
+            </div>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <a
+                href="https://github.com/your-username/sourcelens"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '12px' }}
+              >
+                GitHub
+              </a>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  // Open privacy policy (could be a markdown file or web page)
+                  window.open('https://github.com/your-username/sourcelens/blob/main/PRIVACY_POLICY.md', '_blank');
+                }}
+                style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '12px' }}
+              >
+                Privacy Policy
+              </a>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.open('https://github.com/your-username/sourcelens/blob/main/README.md', '_blank');
+                }}
+                style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '12px' }}
+              >
+                Documentation
+              </a>
             </div>
           </div>
         </div>

@@ -31,10 +31,8 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
 
     // Timeout to detect if iframe never loads (X-Frame-Options blocking)
     timeoutRef.current = setTimeout(() => {
-      if (loading) {
-        setPreviewError(true);
-        setLoading(false);
-      }
+      setPreviewError(true);
+      setLoading(false);
     }, 5000);
 
     return () => {
@@ -42,7 +40,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [result, loading]);
+  }, [result]);
 
   const handleIframeLoad = () => {
     setLoading(false);

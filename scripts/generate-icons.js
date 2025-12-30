@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const sizes = [16, 48, 128];
+const sizes = [16, 32, 48, 128];
 const iconDir = path.join(__dirname, '..', 'public', 'icons');
 
 // Ensure directory exists

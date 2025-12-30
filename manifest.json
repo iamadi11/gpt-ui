@@ -1,15 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "GPT UI - Enhanced Search Results",
-  "version": "1.0.0",
-  "description": "Enhances ChatGPT search responses with a Google-like results UI overlay",
-  "permissions": [
-    "storage"
-  ],
-  "host_permissions": [
-    "https://chatgpt.com/*",
-    "https://chat.openai.com/*"
-  ],
+  "name": "SourceLens",
+  "short_name": "SourceLens",
+  "version": "3.1.0",
+  "description": "Enhanced search results panel for AI chat interfaces with preview, pins, and local-only knowledge panel.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "SourceLens - Enhanced Results"
+  },
   "content_scripts": [
     {
       "matches": [
@@ -17,22 +20,34 @@
         "https://chat.openai.com/*"
       ],
       "js": ["content.js"],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": false
     }
   ],
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["icons/*"],
-      "matches": [
-        "https://chatgpt.com/*",
-        "https://chat.openai.com/*"
-      ]
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*"
+  ],
+  "commands": {
+    "toggle-panel": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+E",
+        "mac": "Command+Shift+E"
+      },
+      "description": "Toggle results panel"
+    },
+    "toggle-highlight": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+H",
+        "mac": "Command+Shift+H"
+      },
+      "description": "Toggle highlight sources in chat"
     }
-  ]
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }
-

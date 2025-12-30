@@ -1,332 +1,269 @@
-# GPT UI - Enhanced Search Results V3
+# SourceLens
 
-A Chrome Extension (Manifest V3) that enhances ChatGPT search responses by rendering a more graphical, Google-like results UI inside the ChatGPT page as an overlay panel.
+**Enhanced search results panel for AI chat interfaces**
 
-## V3 Features
+SourceLens transforms AI chat search results into a visual, Google-like results panel. It extracts sources from assistant messages and presents them in an organized, interactive overlay—all while keeping your data completely private and local.
 
-### 🎯 Preview Mode (Safe, Permission-Minimal)
-- **Inline iframe preview**: Click "Preview" to view content in a split-panel view
-- **Smart fallback**: Detects X-Frame-Options blocking and shows helpful error message
-- **Security-first**: Uses sandboxed iframe with `referrerPolicy="no-referrer"`
-- **Quick actions**: When preview is blocked, shows Open/Copy actions
-- **Toggle view**: Switch between List and Split preview modes
+[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Available-blue)](https://chrome.google.com/webstore) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-### 📌 Pinboard / Collections
-- **Save results**: Pin any result to save it for later
-- **Collections/Folders**: Organize pins into folders (local only)
-- **Search & filter**: Search pins, filter by domain/tag, sort by date/domain/title
-- **Bulk actions**: Select multiple pins to remove or move to folders
-- **Export**: Export pins as JSON or Markdown (download via blob, no server)
-- **"Seen again" indicator**: Shows "Pinned" badge when same URL appears in new chats
+## ✨ Features
+
+### 🎯 Visual Results Panel
+- Organized card layout with favicons, titles, domains, and snippets
+- Grouped by domain or flat list view
+- Smart ranking for top results (domain diversity, quality signals)
+
+### 👁️ Preview Mode
+- Split-panel preview with secure sandboxed iframe
+- Graceful fallback for sites that block embedding (X-Frame-Options)
+- Quick actions when preview is unavailable
+
+### 📌 Pinboard & Collections
+- Save important sources to folders
+- Search and filter your pins
+- Export as JSON or Markdown
+- "Seen again" indicators
+
+### 🧠 Knowledge Panel (V3.1)
+- Query context (in-memory, never saved)
+- Top domains with diversity scores
+- Source quality signals (docs-heavy, news-heavy, forum-heavy)
+- Date hints and freshness indicators
+- Suggested pins
+
+### 🎨 Intent-Based Filtering
+- Filter by category: Docs, News, Video, Forums, Shopping, Research
+- Quick filtering with visual chips
 
 ### 🕒 Session History
-- **Privacy-preserving**: Stores only metadata (domains, counts, hashed IDs) - no chat text
-- **Recent sessions**: View last 50 sessions with date/time and result counts
-- **Domain preview**: See which domains were referenced in each session
-- **Clear history**: One-click clear all history and cached data
+- Privacy-preserving session tracking
+- View recent search sessions with domain counts
+- Completely optional (can be disabled)
 
-### ⌨️ Command Palette (Power User)
-- **Cmd/Ctrl+K**: Open command palette for quick actions
-- **Searchable commands**: Type to filter commands
-- **Keyboard navigation**: Arrow keys + Enter to execute
-- **Commands available**:
-  - Toggle panel
-  - Switch tabs (Results/Pins/History)
-  - Open settings
-  - Toggle highlight sources
+### ⌨️ Command Palette
+- Press `Cmd/Ctrl+K` for quick actions
+- Keyboard-driven navigation
 
-### 🎯 Smarter Ranking
-- **Local-only scoring**: No AI or external calls
-- **Domain diversity**: Prefers unique domains in top results
-- **Documentation boost**: Prioritizes docs.*, developer.*, github.com, MDN, etc.
-- **Quality signals**: Boosts results with meaningful snippets and reasonable title lengths
-- **De-boost trackers**: Reduces ranking for obvious redirect/tracker URLs
+### 🔒 Privacy First
+- **No data collection** - Zero analytics or telemetry
+- **No chat text storage** - We never save your prompts or responses
+- **Local-only processing** - Everything happens in your browser
+- **Minimal permissions** - Only storage and ChatGPT domain access
 
-### V2 Features (Carried Forward)
-- ✅ Enhanced detection with improved heuristics
-- ✅ Tag filtering (News/Docs/Video/Forums)
-- ✅ Smart URL normalization and deduplication
-- ✅ Theme auto-detection (light/dark)
-- ✅ Keyboard shortcuts (Cmd/Ctrl+Shift+E, Cmd/Ctrl+Shift+H)
-- ✅ Responsive design (desktop panel, mobile bottom sheet)
+## 📦 Installation
 
-## Installation
+### From Chrome Web Store (Coming Soon)
+1. Visit the Chrome Web Store
+2. Click "Add to Chrome"
+3. Start using SourceLens on chatgpt.com or chat.openai.com
 
-### Prerequisites
+### Load Unpacked (Development)
+1. **Clone the repository:**
+   ```bash
+   git clone [repository-url]
+   cd gpt-ui
+   ```
 
-- Node.js 18+ and npm/yarn
-- Chrome or Chromium-based browser
-
-### Build Steps
-
-1. **Install dependencies:**
+2. **Install dependencies:**
    ```bash
    npm install
    ```
 
-2. **Generate extension icons:**
+3. **Generate icons:**
    ```bash
    npm run generate-icons
    ```
 
-3. **Build the extension:**
+4. **Build the extension:**
    ```bash
    npm run build
    ```
-   
-   This creates a `dist/` folder with the compiled extension.
 
-4. **Load in Chrome:**
+5. **Load in Chrome:**
    - Open Chrome and navigate to `chrome://extensions/`
    - Enable "Developer mode" (toggle in top-right)
    - Click "Load unpacked"
-   - Select the `dist/` folder from this project
+   - Select the `dist/` folder
 
-5. **Run tests (optional):**
-   ```bash
-   npm test
-   ```
+## 🚀 Usage
 
-## How It Works
+1. **Open ChatGPT** - Visit chatgpt.com or chat.openai.com
 
-### Detection Heuristics
+2. **Trigger Search Results** - Ask a question that generates sources
 
-The extension uses resilient selectors and heuristics to detect search results:
+3. **Open Panel** - Click the toggle button (🔍) or press `Cmd/Ctrl+Shift+E`
 
-1. **Message Detection**: Identifies assistant messages by:
-   - Looking for `role="assistant"` or `data-message-author-role="assistant"` attributes
-   - Finding message blocks with external links (excluding ChatGPT/OpenAI domains)
-   - Detecting "Sources", "Citations", or "References" text (case-insensitive)
-   - Identifying citation-style patterns (numbered/bracketed references)
-   - Detecting link clusters
+4. **Explore Features:**
+   - Browse results in organized cards
+   - Click "Preview" to view content in split mode
+   - Pin important sources for later
+   - Filter by intent (Docs, News, Video, etc.)
+   - View knowledge panel insights
+   - Export results or pins
 
-2. **Result Extraction**: Extracts results with:
-   - Stable hash-based IDs from normalized URLs
-   - Original URL (preserves http/https)
-   - Domain extraction
-   - Title from anchor text, headings, or URL parsing
-   - Snippet from surrounding text nodes (configurable length)
-   - Source message ID and selector hints for highlighting
-   - Tags derived from domain heuristics (citation, news, doc, video, forum)
+### Keyboard Shortcuts
 
-3. **Deduplication**: 
-   - Normalizes URLs (collapses http/https, removes trailing slash, strips UTM params)
-   - Tracks duplicates with count badges
-   - Keeps first occurrence position
+- `Cmd/Ctrl+Shift+E` - Toggle results panel
+- `Cmd/Ctrl+Shift+H` - Toggle highlight sources in chat
+- `Cmd/Ctrl+K` - Open command palette
+- `Escape` - Close modals/palette
 
-4. **Ranking** (V3):
-   - Scores results locally using domain diversity, snippet quality, title length, and domain tags
-   - Prioritizes documentation sources
-   - De-boosts tracker/redirect URLs
-
-### Preview Mode
-
-Preview uses sandboxed iframes with security best practices:
-- **Sandbox attributes**: `allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin`
-- **Referrer policy**: `no-referrer` to protect privacy
-- **Error detection**: 5-second timeout detects X-Frame-Options blocking
-- **Fallback UI**: Shows helpful message when embedding is blocked
-
-**Why some sites block embedding**: Many sites use X-Frame-Options or CSP `frame-ancestors` to prevent clickjacking. This is a security feature, not a bug.
-
-### Privacy & Security
-
-- ✅ **No External APIs**: All processing happens in your browser
-- ✅ **No Data Collection**: No telemetry, analytics, or data export
-- ✅ **No Remote Script Injection**: Bundle everything locally
-- ✅ **Minimal Permissions**: Only requires `storage` permission and access to ChatGPT domains
-- ✅ **No Chat Text Storage**: Only stores minimal derived link metadata (URLs/domains) for caching
-- ✅ **Hashed IDs**: Chat/conversation IDs are hashed before storage
-- ✅ **Local Storage Only**: Settings, pins, and history stored via `chrome.storage.local`
-- ✅ **Shadow DOM**: UI is isolated to prevent CSS conflicts with ChatGPT
-- ✅ **No Favicon Fetching**: Uses Chrome's internal `chrome://favicon2` service
-
-### What Gets Stored Locally
-
-- **Settings**: User preferences (panel position, default tab, etc.)
-- **Pins**: URL, title, domain, tags, notes, folder assignments, timestamps
-- **History**: Session metadata (domain lists, result counts, hashed IDs)
-- **Cache**: LRU cache of URL metadata (max 200 items)
-
-**What does NOT get stored:**
-- ChatGPT message text
-- Chat conversation content
-- Personal information
-- Browsing history outside of extension usage
-
-## Usage
-
-1. **Open ChatGPT**: Navigate to `chatgpt.com` or `chat.openai.com`
-
-2. **Trigger Search Results**: Ask ChatGPT a question that typically returns sources
-
-3. **View Enhanced Results**: 
-   - Click the toggle button (🔍) or press `Cmd/Ctrl+Shift+E`
-   - Browse results in the panel
-   - Use tabs to switch between Results, Pins, and History
-
-4. **Preview Content**:
-   - Click "Preview" on any result to view in split mode
-   - Toggle between List and Split views
-   - Some sites block embedding (X-Frame-Options) - you'll see a helpful message
-
-5. **Pin Results**:
-   - Click "Pin" on any result to save it
-   - View pins in the Pins tab
-   - Organize into folders
-   - Export as JSON or Markdown
-
-6. **Command Palette**:
-   - Press `Cmd/Ctrl+K` to open
-   - Type to search commands
-   - Use arrow keys and Enter to execute
-
-7. **Keyboard Shortcuts**:
-   - `Cmd/Ctrl+Shift+E`: Toggle panel visibility
-   - `Cmd/Ctrl+Shift+H`: Toggle highlight all sources in chat
-   - `Cmd/Ctrl+K`: Open command palette
-
-## Settings
+### Settings
 
 Access settings via the ⚙️ icon in the panel header:
 
-- **Enabled**: Enable/disable the extension
-- **Panel Position**: Right or Left (desktop)
-- **Default Tab**: Results, Pins, or History
-- **Default View**: Top Results, All Results, or Grouped by Domain
-- **Auto-open panel**: Auto-open when sources detected
-- **Auto-open preview**: Auto-open preview in split mode when clicking result
-- **Highlight sources**: Highlight sources in chat on toggle
-- **Enable top ranking**: Use smart ranking for top results
-- **Enable history**: Track session history
-- **Snippet length**: Configure snippet length (120–320 chars)
-- **Clear all data**: Delete all pins, history, and cache (settings preserved)
+- **Panel Position** - Right or Left (desktop)
+- **Default Tab** - Results, Pins, or History
+- **Default View** - Top Results, All Results, or Grouped
+- **Auto-open preview** - Auto-open preview in split mode
+- **Enable top ranking** - Use smart ranking for top results
+- **Privacy controls** - Clear data, disable history, hide query context
 
-## Development
+## 📖 Documentation
+
+- **[Privacy Policy](./PRIVACY_POLICY.md)** - How we handle your data
+- **[Permissions](./PERMISSIONS.md)** - Why we need each permission
+- **[Troubleshooting](./TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Support](./SUPPORT.md)** - How to report bugs
+- **[Changelog](./CHANGELOG.md)** - Version history
+
+## 🔒 Privacy
+
+SourceLens is built with privacy as a core principle:
+
+- ✅ **No data collection** - Zero analytics, telemetry, or external API calls
+- ✅ **No chat text storage** - We never save your prompts or ChatGPT responses
+- ✅ **Local-only processing** - All analysis happens in your browser
+- ✅ **Minimal permissions** - Only storage permission and access to ChatGPT domains
+- ✅ **You control your data** - Clear pins, history, or all data anytime
+
+**What we store locally:**
+- Your preferences (panel position, theme, etc.)
+- Pinned sources (URLs, titles, domains, your notes)
+- Optional session history (domain counts, hashed IDs - no chat text)
+
+**What we don't store:**
+- ChatGPT message text
+- Your prompts or questions
+- Assistant responses
+- Personal information
+
+See our [Privacy Policy](./PRIVACY_POLICY.md) for complete details.
+
+## 🛠️ Development
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Build Commands
+
+```bash
+# Install dependencies
+npm install
+
+# Development mode (watch)
+npm run dev
+
+# Production build
+npm run build
+
+# Run tests
+npm test
+
+# Generate icons
+npm run generate-icons
+
+# Package for release
+npm run package
+```
+
+### Version Management
+
+```bash
+# Bump patch version (3.1.0 → 3.1.1)
+npm run bump:patch
+
+# Bump minor version (3.1.0 → 3.2.0)
+npm run bump:minor
+
+# Bump major version (3.1.0 → 4.0.0)
+npm run bump:major
+```
 
 ### Project Structure
 
 ```
 gpt-ui/
 ├── src/
-│   ├── content/              # Content script
-│   │   ├── index.tsx         # Main entry point
-│   │   ├── mount.tsx         # React mounting
-│   │   ├── observer.ts       # MutationObserver
-│   │   ├── highlight.ts      # Chat highlighting
-│   │   ├── extractor/        # Result extraction
-│   │   │   ├── index.ts
-│   │   │   ├── heuristics.ts
-│   │   │   ├── snippet.ts
-│   │   │   ├── rank.ts       # V3 ranking
-│   │   │   └── __tests__/
-│   │   ├── selectors.ts
-│   │   └── styles.css
-│   ├── ui/                   # React UI
-│   │   ├── App.tsx
-│   │   ├── theme.ts
-│   │   ├── tabs/             # V3 tabs
-│   │   │   ├── PinsTab.tsx
-│   │   │   └── HistoryTab.tsx
-│   │   ├── components/
-│   │   │   ├── Panel.tsx
-│   │   │   ├── ResultsTab.tsx
-│   │   │   ├── PreviewPane.tsx
-│   │   │   ├── SplitView.tsx
-│   │   │   ├── CommandPalette.tsx
-│   │   │   ├── PinItemCard.tsx
-│   │   │   └── ...
-│   │   └── hooks/
-│   │       ├── usePins.ts
-│   │       ├── useHistory.ts
-│   │       └── useCommandPalette.ts
-│   └── shared/               # Shared utilities
-│       ├── types.ts
-│       ├── storage-v3.ts     # V3 storage with migrations
-│       └── utils/
-│           ├── url.ts
-│           ├── hash.ts
-│           ├── tags.ts
-│           └── download.ts   # V3 export
-├── public/
-│   └── icons/
-├── manifest.json
-├── vite.config.ts
-└── package.json
+│   ├── content/          # Content script
+│   ├── ui/               # React UI components
+│   └── shared/           # Shared utilities and types
+├── public/               # Static assets
+├── dist/                 # Build output
+├── release/              # Packaged releases
+└── scripts/              # Build scripts
 ```
 
-### Build Commands
+### Running Tests
 
-- `npm run build`: Build production bundle
-- `npm run dev`: Watch mode for development
-- `npm test`: Run unit tests
-- `npm run test:watch`: Run tests in watch mode
-
-### Testing
-
-See [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) for comprehensive testing guidelines.
-
-Unit tests cover:
-- URL normalization and deduplication
-- Hash generation
-- Domain tagging heuristics
-- Ranking logic (V3)
-
-Run tests with:
 ```bash
+# Run all tests
 npm test
+
+# Watch mode
+npm run test:watch
 ```
 
-## Known Limitations
+## 📦 Release Process
 
-1. **ChatGPT DOM Changes**: ChatGPT's DOM structure may change, requiring selector updates. The extension uses layered selectors and heuristics to be resilient, but major UI overhauls may require updates.
+1. **Run tests:**
+   ```bash
+   npm test
+   ```
 
-2. **Preview Blocking**: Many sites block embedding via X-Frame-Options or CSP. This is a security feature - the extension detects this and shows a fallback message.
+2. **Build:**
+   ```bash
+   npm run build
+   ```
 
-3. **Streaming Detection**: Some streaming updates may be missed; extension uses MutationObserver with 300ms debouncing for optimal performance.
+3. **Package:**
+   ```bash
+   npm run package
+   ```
+   This creates `release/SourceLens-vX.Y.Z.zip`
 
-4. **Highlight Accuracy**: Highlighting relies on selector hints; if ChatGPT changes its DOM structure significantly, highlights may not work until selectors are updated.
+4. **Upload to Chrome Web Store:**
+   - Go to Chrome Web Store Developer Dashboard
+   - Upload the zip file
+   - Fill in store listing details (see [STORE_LISTING.md](./STORE_LISTING.md))
+   - Submit for review
 
-5. **Favicon Loading**: Uses Chrome's internal `chrome://favicon2` service, which may not always have favicons for all domains.
+## 🐛 Troubleshooting
 
-6. **Storage Limits**: Pins max 2000, history max 50 sessions, cache max 200 items (enforced with LRU eviction).
+See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for common issues and solutions.
 
-## Troubleshooting
+## 🤝 Contributing
 
-**Extension not working:**
-- Check browser console for errors (`F12` → Console)
-- Verify extension is enabled in `chrome://extensions/`
-- Ensure you're on `chatgpt.com` or `chat.openai.com`
-- Try reloading the page
+Contributions are welcome! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
-**Preview not working:**
-- Many sites block iframe embedding (X-Frame-Options) - this is expected
-- Use "Open in new tab" instead
-- Check browser console for iframe errors
+## 📄 License
 
-**Pins not saving:**
-- Check storage quota (chrome://extensions → extension → Details → Storage)
-- Verify extension has storage permission
-- Check browser console for errors
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
-**Command palette not opening:**
-- Ensure panel is visible first
-- Try `Cmd/Ctrl+K` when panel is open
-- Check for conflicts with ChatGPT keyboard shortcuts
-
-## Contributing
-
-This is a personal project, but suggestions and improvements are welcome!
-
-## License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## Credits
+## 🙏 Acknowledgments
 
 Built with:
 - React 18
 - TypeScript
 - Vite
-- Vitest
 - Chrome Extension Manifest V3
+
+## 📧 Support
+
+For bug reports and feature requests, please see [SUPPORT.md](./SUPPORT.md).
+
+---
+
+**SourceLens** - Privacy-first enhancement for AI chat interfaces

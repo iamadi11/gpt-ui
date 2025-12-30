@@ -1,6 +1,6 @@
 {
   "name": "gpt-ui",
-  "version": "1.0.0",
+  "version": "3.1.0",
   "description": "Chrome Extension that enhances ChatGPT search responses with a Google-like results UI",
   "type": "module",
   "scripts": {
@@ -9,7 +9,12 @@
     "preview": "vite preview",
     "generate-icons": "node scripts/generate-icons.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "package": "node scripts/package.cjs",
+    "bump:patch": "node scripts/bump-version.cjs patch",
+    "bump:minor": "node scripts/bump-version.cjs minor",
+    "bump:major": "node scripts/bump-version.cjs major",
+    "lint": "echo 'Linting not configured. Run: npm run build to check TypeScript errors.'"
   },
   "keywords": [
     "chrome-extension",

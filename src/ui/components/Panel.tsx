@@ -77,10 +77,13 @@ export const Panel: React.FC<PanelProps> = ({
   const renderTabContent = () => {
     switch (activeTab) {
       case 'results':
+        // V3.1: Get current message ID from first result (if available)
+        const currentMessageId = results.length > 0 ? results[0].sourceMessageId : undefined;
         return (
           <ResultsTab
             results={results}
             settings={settings}
+            currentMessageId={currentMessageId}
             onOpen={handleOpen}
             onCopyLink={handleCopyLink}
             onCopyCitation={handleCopyCitation}
@@ -88,6 +91,7 @@ export const Panel: React.FC<PanelProps> = ({
             onPin={handlePin}
             onPreview={handlePreview}
             isPinned={isPinned}
+            showQueryContext={true}
           />
         );
       case 'pins':

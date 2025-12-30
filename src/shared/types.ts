@@ -25,6 +25,7 @@ export interface ExtensionSettings {
   snippetLength: number; // 120-320 chars
   enableTopRanking: boolean; // V3: enable smart ranking for top results
   historyEnabled: boolean; // V3: enable session history
+  neverShowQueryContext?: boolean; // V3.1: Never show query context in Knowledge Panel
   showGroupedByDomain?: boolean; // legacy, use defaultView instead
 }
 
@@ -40,6 +41,8 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   enableTopRanking: true,
   historyEnabled: true,
   showGroupedByDomain: true, // legacy support
+  // V3.1 defaults
+  neverShowQueryContext: false,
 };
 
 // V3: Pinboard types

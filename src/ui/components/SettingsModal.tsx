@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { ExtensionSettings } from '../types';
-import { clearAllData } from '../../shared/storage';
+import { clearAllData, clearHistory, removePin, getPins } from '../../shared/storage';
 
 interface SettingsModalProps {
   settings: ExtensionSettings;
@@ -15,11 +15,53 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 }) => {
   const [localSettings, setLocalSettings] = useState<ExtensionSettings>(settings);
 
+  const handleClearPins = async () => {
+    if (window.confirm('Clear all pins? This cannot be undone.')) {
+      try {
+        const pins = await getPins();
+        for (const pin of pins) {
+          await removePin(pin.id);
+        }
+        window.location.reload();
+      } catch (error) {
+        console.error('Error clearing pins:', error);
+        alert('Error clearing pins. Please try again.');
+      }
+    }
+  };
+
+  const handleClearCache = async () => {
+    if (window.confirm('Clear derived caches? This will remove cached URL metadata.')) {
+      // Clear cache by removing cache entries (LRU will handle this naturally)
+      // For now, just clear the storage key
+      if (typeof chrome !== 'undefined' && chrome.storage) {
+        chrome.storage.local.remove(['urlCache'], () => {
+          window.location.reload();
+        });
+      } else {
+        localStorage.removeItem('urlCache');
+        window.location.reload();
+      }
+    }
+  };
+
   const handleClearAllData = async () => {
     if (window.confirm('Clear all data (pins, history, cache)? This cannot be undone.')) {
       await clearAllData();
-      // Reload page to reflect changes
       window.location.reload();
+    }
+  };
+
+  const handleResetEverything = async () => {
+    if (window.confirm('Reset everything including settings? This cannot be undone.')) {
+      if (typeof chrome !== 'undefined' && chrome.storage) {
+        chrome.storage.local.clear(() => {
+          window.location.reload();
+        });
+      } else {
+        localStorage.clear();
+        window.location.reload();
+      }
     }
   };
 
@@ -201,18 +243,81 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* Clear All Data */}
+          {/* V3.1: Privacy Controls */}
           <div className="settings-item">
-            <div className="settings-label">Data Management</div>
-            <button
-              className="settings-button danger"
-              onClick={handleClearAllData}
-              style={{ marginTop: '8px' }}
-            >
-              Clear All Data
-            </button>
-            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-              This will delete all pins, history, and cached data. Settings will be preserved.
+            <div className="settings-label" style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+              Privacy Controls
+            </div>
+            
+            {/* Never show query context */}
+            <div className="settings-item" style={{ marginBottom: '16px' }}>
+              <label className="settings-label">
+                <input
+                  type="checkbox"
+                  checked={localSettings.neverShowQueryContext || false}
+                  onChange={(e) => handleChange('neverShowQueryContext' as any, e.target.checked)}
+                />
+                <span>Never show query context</span>
+              </label>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px', marginLeft: '24px' }}>
+                Query context is never saved, only shown in-memory
+              </div>
+            </div>
+          </div>
+
+          {/* V3.1: Data Management */}
+          <div className="settings-item">
+            <div className="settings-label" style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+              Data Management
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button
+                className="settings-button"
+                onClick={handleClearPins}
+                style={{ fontSize: '13px' }}
+              >
+                Clear Pins
+              </button>
+              <button
+                className="settings-button"
+                onClick={() => handleClearCache()}
+                style={{ fontSize: '13px' }}
+              >
+                Clear Derived Caches
+              </button>
+              <button
+                className="settings-button"
+                onClick={() => {
+                  if (window.confirm('Clear session history?')) {
+                    clearHistory();
+                    window.location.reload();
+                  }
+                }}
+                style={{ fontSize: '13px' }}
+              >
+                Clear History
+              </button>
+              <button
+                className="settings-button danger"
+                onClick={handleClearAllData}
+                style={{ fontSize: '13px', marginTop: '8px' }}
+              >
+                Clear All Data
+              </button>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                This will delete all pins, history, and cached data. Settings will be preserved.
+              </div>
+              <button
+                className="settings-button danger"
+                onClick={handleResetEverything}
+                style={{ fontSize: '13px', marginTop: '8px' }}
+              >
+                Reset Everything
+              </button>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                This will delete all data including settings. Complete reset.
+              </div>
             </div>
           </div>
         </div>

@@ -9,7 +9,9 @@ interface ResultCardProps {
   onHighlight: (sourceNodeSelectorHint: string, url: string, sourceMessageId?: string) => void;
   onPin?: (result: Result) => void;
   onPreview?: (result: Result) => void;
+  onFilterByDomain?: (domain: string) => void;
   isPinned?: boolean;
+  highlightedSnippet?: string; // V3.1: HTML string with highlighted keywords
 }
 
 export const ResultCard: React.FC<ResultCardProps> = ({
@@ -20,7 +22,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({
   onHighlight,
   onPin,
   onPreview,
+  onFilterByDomain,
   isPinned,
+  highlightedSnippet,
 }) => {
   const [faviconError, setFaviconError] = useState(false);
   
@@ -98,7 +102,56 @@ export const ResultCard: React.FC<ResultCardProps> = ({
           ))}
         </div>
       )}
-      <div className="result-snippet">{result.snippet}</div>
+      <div 
+        className="result-snippet"
+        dangerouslySetInnerHTML={highlightedSnippet ? { __html: highlightedSnippet } : undefined}
+      >
+        {!highlightedSnippet && result.snippet}
+      </div>
+      
+      {/* V3.1: Sitelinks-like quick actions */}
+      <div className="result-quick-actions">
+        {onFilterByDomain && (
+          <button
+            className="quick-action-chip"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onFilterByDomain(result.domain);
+            }}
+            aria-label={`Filter by ${result.domain}`}
+          >
+            Open domain
+          </button>
+        )}
+        {onFilterByDomain && (
+          <button
+            className="quick-action-chip"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onFilterByDomain(result.domain);
+            }}
+            aria-label={`Filter by ${result.domain}`}
+          >
+            Filter domain
+          </button>
+        )}
+        {onPreview && (
+          <button
+            className="quick-action-chip"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onPreview(result);
+            }}
+            aria-label="Preview"
+          >
+            Preview
+          </button>
+        )}
+      </div>
+      
       <div className="result-actions">
         {onPreview && (
           <button 

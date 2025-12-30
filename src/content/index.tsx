@@ -136,17 +136,23 @@ function createToggleButton() {
   button.type = 'button'; // Prevent form submission
   
   // Use both capture and bubble phases to ensure the event fires
+  let isHandling = false;
   const handleClick = (e: MouseEvent | TouchEvent) => {
+    if (isHandling) return; // Prevent double-firing
+    isHandling = true;
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
     isVisible = !isVisible;
     renderPanel();
+    // Reset after a short delay to allow for the next click
+    setTimeout(() => {
+      isHandling = false;
+    }, 100);
   };
   
-  // Multiple event handlers to catch all interaction types
+  // Only use capture phase to avoid double-firing
   button.addEventListener('click', handleClick as EventListener, true);
-  button.addEventListener('click', handleClick as EventListener, false);
   button.addEventListener('mousedown', (e) => {
     e.stopPropagation();
     e.stopImmediatePropagation();

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import type { Result, ExtensionSettings } from '../types';
 import { Filters } from './Filters';
 import { ResultCard } from './ResultCard';
@@ -45,13 +45,36 @@ export const ResultsTab: React.FC<ResultsTabProps> = ({
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedIntent, setSelectedIntent] = useState<IntentType>('all');
   const [sortBy, setSortBy] = useState<'original' | 'domain' | 'title'>('original');
-  const [showGrouped, setShowGrouped] = useState(
+  const [showGrouped, setShowGrouped] = useState(() => 
     settings.defaultView === 'grouped' || settings.showGroupedByDomain === true
   );
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showPinAllModal, setShowPinAllModal] = useState(false);
   const [exportIncludeSnippets, setExportIncludeSnippets] = useState(false);
+  
+  // Use ref for the toggle button to prevent event bubbling issues
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
+  
+  // Add native event listener in capture phase to intercept before React
+  useEffect(() => {
+    const button = toggleButtonRef.current;
+    if (!button) return;
+    
+    const handleClickCapture = (e: Event) => {
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    };
+    
+    // Add capture-phase listener to intercept before any other handlers
+    button.addEventListener('click', handleClickCapture, true);
+    button.addEventListener('mousedown', handleClickCapture, true);
+    
+    return () => {
+      button.removeEventListener('click', handleClickCapture, true);
+      button.removeEventListener('mousedown', handleClickCapture, true);
+    };
+  }, []);
 
   // V3.1: Query context (in-memory only) - respect privacy setting
   const shouldShowQueryContext = showQueryContext && !settings.neverShowQueryContext;
@@ -307,12 +330,27 @@ export const ResultsTab: React.FC<ResultsTabProps> = ({
             )}
 
             {/* View Toggle */}
-            <div style={{ marginTop: '16px', textAlign: 'center' }}>
+            <div 
+              style={{ marginTop: '16px', textAlign: 'center' }}
+            >
               <button
+                ref={toggleButtonRef}
                 className="sort-button"
-                onClick={() => setShowGrouped(!showGrouped)}
+                onClick={(e) => {
+                  // Aggressively stop all event propagation
+                  e.stopPropagation();
+                  e.preventDefault();
+                  // Update state
+                  setShowGrouped((prev) => !prev);
+                }}
+                onMouseDown={(e) => {
+                  // Stop mousedown from bubbling
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
                 style={{ fontSize: '12px' }}
                 aria-label={showGrouped ? 'Show flat list' : 'Show grouped by domain'}
+                type="button"
               >
                 {showGrouped ? 'Show Flat List' : 'Show Grouped by Domain'}
               </button>

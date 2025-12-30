@@ -1,56 +1,56 @@
 /* CSS Variables for Theming */
 :host,
 :root {
-  /* Light theme (default) */
+  /* Light theme (default) - Modern Premium Palette */
   --bg-primary: #ffffff;
   --bg-secondary: #f8f9fa;
   --bg-tertiary: #f1f3f4;
   --border-color: #e8eaed;
   --border-color-light: #dadce0;
-  --text-primary: #202124;
-  --text-secondary: #5f6368;
-  --text-tertiary: #80868b;
-  --link-color: #1a0dab;
-  --link-hover: #1557b0;
-  --accent-color: #1a73e8;
-  --accent-hover: #1557b0;
-  --accent-light: #e8f0fe;
-  --shadow: rgba(0, 0, 0, 0.1);
-  --shadow-hover: rgba(0, 0, 0, 0.15);
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
+  --link-color: #6366f1;
+  --link-hover: #8b5cf6;
+  --accent-color: #6366f1;
+  --accent-hover: #8b5cf6;
+  --accent-light: rgba(99, 102, 241, 0.1);
+  --shadow: rgba(0, 0, 0, 0.06);
+  --shadow-hover: rgba(0, 0, 0, 0.1);
   
-  /* Glassmorphism tokens - Light theme (default: normal intensity) */
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-bg-2: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(0, 0, 0, 0.08);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.16);
-  --glass-blur: 16px;
-  --glass-saturation: 180%;
+  /* Glassmorphism tokens - Light theme (very high transparency: 20-40% opacity) */
+  --glass-bg: rgba(255, 255, 255, 0.3);
+  --glass-bg-2: rgba(255, 255, 255, 0.35);
+  --glass-border: rgba(0, 0, 0, 0.03);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.1);
+  --glass-blur: 24px;
+  --glass-saturation: 210%;
   --glass-radius: 16px;
   --glass-radius-sm: 12px;
   --glass-radius-lg: 20px;
-  --chip-bg: rgba(255, 255, 255, 0.6);
-  --chip-bg-hover: rgba(255, 255, 255, 0.8);
-  --chip-border: rgba(0, 0, 0, 0.1);
-  --chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --focus-ring: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  --chip-bg: rgba(255, 255, 255, 0.4);
+  --chip-bg-hover: rgba(255, 255, 255, 0.5);
+  --chip-border: rgba(0, 0, 0, 0.04);
+  --chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.4);
   --hover-lift: translateY(-2px);
   
   /* Glassmorphism enabled state (default: true, but can be toggled) */
   --glass-enabled: 1;
   
-  /* Frosted gradient overlays - Light theme */
-  --frost-overlay-1: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.4) 0%, transparent 50%),
-                      linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(240, 248, 255, 0.1) 100%);
-  --frost-overlay-2: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 40%);
-  --frost-overlay-opacity: 0.55;
+  /* Frosted gradient overlays - Light theme (refined with blue/purple tints) */
+  --frost-overlay-1: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+                      linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(238, 242, 255, 0.08) 100%);
+  --frost-overlay-2: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 40%);
+  --frost-overlay-opacity: 0.5;
   --frost-overlay-blend: soft-light;
-  --frost-noise-opacity: 0.04;
-  --frost-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 2px);
-  --glass-surface-opacity: 0.75;
+  --frost-noise-opacity: 0.03;
+  --frost-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 2px);
+  --glass-surface-opacity: 0.3;
   
-  /* V6: Drawer transparency - default 0.32 (32% opacity) */
-  --drawer-alpha: 0.32;
+  /* V6: Drawer transparency - ultra-transparent (15-20% opacity) */
+  --drawer-alpha: 0.18;
   --drawer-bg: rgba(255, 255, 255, var(--drawer-alpha));
 }
 
@@ -71,78 +71,78 @@
   --shadow: rgba(0, 0, 0, 0.3);
   --shadow-hover: rgba(0, 0, 0, 0.4);
   
-  /* Glassmorphism tokens - Dark theme */
-  --glass-bg: rgba(31, 41, 55, 0.8);
-  --glass-bg-2: rgba(31, 41, 55, 0.9);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.5);
-  --chip-bg: rgba(31, 41, 55, 0.7);
-  --chip-bg-hover: rgba(31, 41, 55, 0.85);
-  --chip-border: rgba(255, 255, 255, 0.15);
-  --chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --focus-ring: 0 0 0 3px rgba(96, 165, 250, 0.5);
+  /* Glassmorphism tokens - Dark theme (complementing ultra-transparent light theme) */
+  --glass-bg: rgba(31, 41, 55, 0.35);
+  --glass-bg-2: rgba(31, 41, 55, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
+  --chip-bg: rgba(31, 41, 55, 0.4);
+  --chip-bg-hover: rgba(31, 41, 55, 0.5);
+  --chip-border: rgba(255, 255, 255, 0.08);
+  --chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --focus-ring: 0 0 0 3px rgba(139, 92, 246, 0.4);
   
   /* Frosted gradient overlays - Dark theme */
-  --frost-overlay-1: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
-                      linear-gradient(135deg, rgba(100, 150, 255, 0.05) 0%, rgba(60, 80, 120, 0.03) 100%);
-  --frost-overlay-2: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 40%);
-  --frost-overlay-opacity: 0.5;
+  --frost-overlay-1: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.06) 0%, transparent 50%),
+                      linear-gradient(135deg, rgba(139, 92, 246, 0.04) 0%, rgba(99, 102, 241, 0.02) 100%);
+  --frost-overlay-2: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 40%);
+  --frost-overlay-opacity: 0.45;
   --frost-overlay-blend: soft-light;
-  --frost-noise-opacity: 0.03;
-  --frost-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 2px);
-  --glass-surface-opacity: 0.8;
+  --frost-noise-opacity: 0.02;
+  --frost-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 2px);
+  --glass-surface-opacity: 0.35;
   
-  /* V6: Drawer transparency - Dark theme */
-  --drawer-alpha: 0.32;
+  /* V6: Drawer transparency - Dark theme (ultra-transparent) */
+  --drawer-alpha: 0.18;
   --drawer-bg: rgba(31, 41, 55, var(--drawer-alpha));
 }
 
-/* Glassmorphism intensity variations */
+/* Glassmorphism intensity variations (adjusted for very high transparency) */
 [data-glass-intensity="subtle"] {
-  --glass-blur: 10px;
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-bg-2: rgba(255, 255, 255, 0.92);
-  --glass-border: rgba(0, 0, 0, 0.1);
-  --frost-overlay-opacity: 0.3;
+  --glass-blur: 20px;
+  --glass-bg: rgba(255, 255, 255, 0.4);
+  --glass-bg-2: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(0, 0, 0, 0.04);
+  --frost-overlay-opacity: 0.35;
   --frost-noise-opacity: 0;
 }
 
 [data-theme="dark"][data-glass-intensity="subtle"] {
-  --glass-bg: rgba(31, 41, 55, 0.85);
-  --glass-bg-2: rgba(31, 41, 55, 0.92);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --frost-overlay-opacity: 0.25;
+  --glass-bg: rgba(31, 41, 55, 0.4);
+  --glass-bg-2: rgba(31, 41, 55, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --frost-overlay-opacity: 0.3;
   --frost-noise-opacity: 0;
 }
 
 [data-glass-intensity="strong"] {
-  --glass-blur: 22px;
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-bg-2: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(0, 0, 0, 0.12);
-  --frost-overlay-opacity: 0.7;
-  --frost-noise-opacity: 0.06;
+  --glass-blur: 28px;
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-bg-2: rgba(255, 255, 255, 0.3);
+  --glass-border: rgba(0, 0, 0, 0.04);
+  --frost-overlay-opacity: 0.6;
+  --frost-noise-opacity: 0.04;
 }
 
 [data-theme="dark"][data-glass-intensity="strong"] {
-  --glass-bg: rgba(31, 41, 55, 0.7);
-  --glass-bg-2: rgba(31, 41, 55, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.18);
-  --frost-overlay-opacity: 0.65;
-  --frost-noise-opacity: 0.05;
+  --glass-bg: rgba(31, 41, 55, 0.3);
+  --glass-bg-2: rgba(31, 41, 55, 0.35);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --frost-overlay-opacity: 0.55;
+  --frost-noise-opacity: 0.03;
 }
 
-/* Frost style variations */
+/* Frost style variations (adjusted for very high transparency) */
 [data-frost-style="minimal"] {
-  --frost-overlay-1: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+  --frost-overlay-1: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 50%);
   --frost-overlay-2: none;
-  --frost-overlay-opacity: 0.4;
+  --frost-overlay-opacity: 0.35;
 }
 
 [data-theme="dark"][data-frost-style="minimal"] {
-  --frost-overlay-1: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 50%);
-  --frost-overlay-opacity: 0.35;
+  --frost-overlay-1: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  --frost-overlay-opacity: 0.3;
 }
 
 [data-frost-enabled="false"] {
@@ -161,17 +161,17 @@
 /* Fallback for browsers without backdrop-filter support */
 @supports not (backdrop-filter: blur(1px)) {
   :root {
-    --glass-bg: rgba(255, 255, 255, 0.95);
-    --glass-bg-2: rgba(255, 255, 255, 0.98);
-    --glass-border: rgba(0, 0, 0, 0.12);
-    --frost-overlay-opacity: 0.35;
+    --glass-bg: rgba(255, 255, 255, 0.9);
+    --glass-bg-2: rgba(255, 255, 255, 0.92);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --frost-overlay-opacity: 0.3;
   }
   
   [data-theme="dark"] {
-    --glass-bg: rgba(31, 41, 55, 0.95);
-    --glass-bg-2: rgba(31, 41, 55, 0.98);
-    --glass-border: rgba(255, 255, 255, 0.15);
-    --frost-overlay-opacity: 0.3;
+    --glass-bg: rgba(31, 41, 55, 0.9);
+    --glass-bg-2: rgba(31, 41, 55, 0.92);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --frost-overlay-opacity: 0.25;
   }
 }
 
@@ -240,8 +240,8 @@
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
   border-left: 1px solid var(--border-color);
-  backdrop-filter: blur(20px) saturate(180%); /* V6: Strong blur to maintain readability */
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(210%); /* V6: Enhanced blur for very high transparency */
+  -webkit-backdrop-filter: blur(24px) saturate(210%);
 }
 
 /* Frost overlay for panel container */
@@ -1386,9 +1386,7 @@
 }
 
 /* V3: Results Tab */
-.results-tab {
-  /* Inherits from panel-content */
-}
+/* .results-tab inherits from panel-content */
 
 /* V3: Preview Pane */
 .preview-pane {

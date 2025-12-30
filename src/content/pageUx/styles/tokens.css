@@ -5,120 +5,120 @@
  */
 
 .graphgpt-pageux {
-  /* Glass surfaces - Light theme (default) */
-  --graphgpt-glass-bg: rgba(255, 255, 255, 0.75);
-  --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.85);
-  --graphgpt-glass-border: rgba(0, 0, 0, 0.08);
-  --graphgpt-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  --graphgpt-glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.16);
-  --graphgpt-glass-blur: 16px;
-  --graphgpt-glass-saturation: 180%;
+  /* Glass surfaces - Light theme (very high transparency: 20-40% opacity) */
+  --graphgpt-glass-bg: rgba(255, 255, 255, 0.3);
+  --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.35);
+  --graphgpt-glass-border: rgba(0, 0, 0, 0.03);
+  --graphgpt-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --graphgpt-glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.1);
+  --graphgpt-glass-blur: 24px;
+  --graphgpt-glass-saturation: 210%;
   --graphgpt-glass-radius: 12px;
   --graphgpt-glass-radius-sm: 8px;
   --graphgpt-glass-radius-lg: 16px;
   
-  /* Text colors - Light theme */
-  --graphgpt-text-primary: #1f2937;
-  --graphgpt-text-secondary: #6b7280;
+  /* Text colors - Light theme (enhanced contrast) */
+  --graphgpt-text-primary: #0f172a;
+  --graphgpt-text-secondary: #334155;
   
-  /* Chip/Button glass - Light theme */
-  --graphgpt-chip-bg: rgba(255, 255, 255, 0.6);
-  --graphgpt-chip-bg-hover: rgba(255, 255, 255, 0.8);
-  --graphgpt-chip-border: rgba(0, 0, 0, 0.1);
-  --graphgpt-chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  /* Chip/Button glass - Light theme (very high transparency) */
+  --graphgpt-chip-bg: rgba(255, 255, 255, 0.4);
+  --graphgpt-chip-bg-hover: rgba(255, 255, 255, 0.5);
+  --graphgpt-chip-border: rgba(0, 0, 0, 0.04);
+  --graphgpt-chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   
-  /* Link color */
-  --graphgpt-link-color: #3b82f6;
+  /* Link color (modern blue-purple) */
+  --graphgpt-link-color: #6366f1;
   
   /* Hover lift */
   --graphgpt-hover-lift: translateY(-2px);
   
-  /* Frosted gradient overlays - Light theme */
-  --graphgpt-frost-overlay-1: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.4) 0%, transparent 50%),
-                                linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(240, 248, 255, 0.1) 100%);
-  --graphgpt-frost-overlay-2: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 40%);
-  --graphgpt-frost-overlay-opacity: 0.55;
+  /* Frosted gradient overlays - Light theme (refined with blue/purple tints) */
+  --graphgpt-frost-overlay-1: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+                                linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(238, 242, 255, 0.08) 100%);
+  --graphgpt-frost-overlay-2: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 40%);
+  --graphgpt-frost-overlay-opacity: 0.5;
   --graphgpt-frost-overlay-blend: soft-light;
-  --graphgpt-frost-noise-opacity: 0.04;
-  --graphgpt-frost-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 2px);
+  --graphgpt-frost-noise-opacity: 0.03;
+  --graphgpt-frost-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 2px);
 }
 
 .graphgpt-pageux[data-graphgpt-theme="dark"] {
-  /* Glass surfaces - Dark theme */
-  --graphgpt-glass-bg: rgba(31, 41, 55, 0.8);
-  --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.9);
-  --graphgpt-glass-border: rgba(255, 255, 255, 0.1);
-  --graphgpt-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --graphgpt-glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.5);
+  /* Glass surfaces - Dark theme (very high transparency: 20-40% opacity) */
+  --graphgpt-glass-bg: rgba(31, 41, 55, 0.35);
+  --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.4);
+  --graphgpt-glass-border: rgba(255, 255, 255, 0.06);
+  --graphgpt-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --graphgpt-glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
   
   /* Text colors - Dark theme */
   --graphgpt-text-primary: #f9fafb;
   --graphgpt-text-secondary: #d1d5db;
   
-  /* Chip/Button glass - Dark theme */
-  --graphgpt-chip-bg: rgba(31, 41, 55, 0.7);
-  --graphgpt-chip-bg-hover: rgba(31, 41, 55, 0.85);
-  --graphgpt-chip-border: rgba(255, 255, 255, 0.15);
-  --graphgpt-chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  /* Chip/Button glass - Dark theme (very high transparency) */
+  --graphgpt-chip-bg: rgba(31, 41, 55, 0.4);
+  --graphgpt-chip-bg-hover: rgba(31, 41, 55, 0.5);
+  --graphgpt-chip-border: rgba(255, 255, 255, 0.08);
+  --graphgpt-chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   
-  /* Link color - Dark theme */
-  --graphgpt-link-color: #60a5fa;
+  /* Link color - Dark theme (modern purple) */
+  --graphgpt-link-color: #8b5cf6;
   
   /* Frosted gradient overlays - Dark theme */
-  --graphgpt-frost-overlay-1: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
-                                linear-gradient(135deg, rgba(100, 150, 255, 0.05) 0%, rgba(60, 80, 120, 0.03) 100%);
-  --graphgpt-frost-overlay-2: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 40%);
-  --graphgpt-frost-overlay-opacity: 0.5;
+  --graphgpt-frost-overlay-1: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.06) 0%, transparent 50%),
+                                linear-gradient(135deg, rgba(139, 92, 246, 0.04) 0%, rgba(99, 102, 241, 0.02) 100%);
+  --graphgpt-frost-overlay-2: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 40%);
+  --graphgpt-frost-overlay-opacity: 0.45;
   --graphgpt-frost-overlay-blend: soft-light;
-  --graphgpt-frost-noise-opacity: 0.03;
-  --graphgpt-frost-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 2px);
+  --graphgpt-frost-noise-opacity: 0.02;
+  --graphgpt-frost-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 2px);
 }
 
-/* Glassmorphism intensity variations */
+/* Glassmorphism intensity variations (adjusted for very high transparency) */
 .graphgpt-pageux[data-glass-intensity="subtle"] {
-  --graphgpt-glass-blur: 10px;
-  --graphgpt-glass-bg: rgba(255, 255, 255, 0.85);
-  --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.92);
-  --graphgpt-glass-border: rgba(0, 0, 0, 0.1);
-  --graphgpt-frost-overlay-opacity: 0.3;
+  --graphgpt-glass-blur: 20px;
+  --graphgpt-glass-bg: rgba(255, 255, 255, 0.4);
+  --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.45);
+  --graphgpt-glass-border: rgba(0, 0, 0, 0.04);
+  --graphgpt-frost-overlay-opacity: 0.35;
   --graphgpt-frost-noise-opacity: 0;
 }
 
 .graphgpt-pageux[data-graphgpt-theme="dark"][data-glass-intensity="subtle"] {
-  --graphgpt-glass-bg: rgba(31, 41, 55, 0.85);
-  --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.92);
-  --graphgpt-glass-border: rgba(255, 255, 255, 0.12);
-  --graphgpt-frost-overlay-opacity: 0.25;
+  --graphgpt-glass-bg: rgba(31, 41, 55, 0.4);
+  --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.45);
+  --graphgpt-glass-border: rgba(255, 255, 255, 0.08);
+  --graphgpt-frost-overlay-opacity: 0.3;
   --graphgpt-frost-noise-opacity: 0;
 }
 
 .graphgpt-pageux[data-glass-intensity="strong"] {
-  --graphgpt-glass-blur: 22px;
-  --graphgpt-glass-bg: rgba(255, 255, 255, 0.65);
-  --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.75);
-  --graphgpt-glass-border: rgba(0, 0, 0, 0.12);
-  --graphgpt-frost-overlay-opacity: 0.7;
-  --graphgpt-frost-noise-opacity: 0.06;
+  --graphgpt-glass-blur: 28px;
+  --graphgpt-glass-bg: rgba(255, 255, 255, 0.25);
+  --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.3);
+  --graphgpt-glass-border: rgba(0, 0, 0, 0.04);
+  --graphgpt-frost-overlay-opacity: 0.6;
+  --graphgpt-frost-noise-opacity: 0.04;
 }
 
 .graphgpt-pageux[data-graphgpt-theme="dark"][data-glass-intensity="strong"] {
-  --graphgpt-glass-bg: rgba(31, 41, 55, 0.7);
-  --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.8);
-  --graphgpt-glass-border: rgba(255, 255, 255, 0.18);
-  --graphgpt-frost-overlay-opacity: 0.65;
-  --graphgpt-frost-noise-opacity: 0.05;
+  --graphgpt-glass-bg: rgba(31, 41, 55, 0.3);
+  --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.35);
+  --graphgpt-glass-border: rgba(255, 255, 255, 0.1);
+  --graphgpt-frost-overlay-opacity: 0.55;
+  --graphgpt-frost-noise-opacity: 0.03;
 }
 
-/* Frost style variations */
+/* Frost style variations (adjusted for very high transparency) */
 .graphgpt-pageux[data-graphgpt-frost-style="minimal"] {
-  --graphgpt-frost-overlay-1: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+  --graphgpt-frost-overlay-1: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 50%);
   --graphgpt-frost-overlay-2: none;
-  --graphgpt-frost-overlay-opacity: 0.4;
+  --graphgpt-frost-overlay-opacity: 0.35;
 }
 
 .graphgpt-pageux[data-graphgpt-theme="dark"][data-graphgpt-frost-style="minimal"] {
-  --graphgpt-frost-overlay-1: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 50%);
-  --graphgpt-frost-overlay-opacity: 0.35;
+  --graphgpt-frost-overlay-1: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  --graphgpt-frost-overlay-opacity: 0.3;
 }
 
 .graphgpt-pageux[data-graphgpt-frost-enabled="false"] {
@@ -129,35 +129,35 @@
 
 /* Disable glassmorphism */
 .graphgpt-pageux[data-glass-enabled="false"] {
-  --graphgpt-glass-bg: rgba(255, 255, 255, 0.95);
-  --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.98);
-  --graphgpt-glass-border: rgba(0, 0, 0, 0.12);
-  --graphgpt-glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --graphgpt-glass-bg: rgba(255, 255, 255, 0.9);
+  --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.92);
+  --graphgpt-glass-border: rgba(0, 0, 0, 0.08);
+  --graphgpt-glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   --graphgpt-glass-blur: 0px;
   --graphgpt-frost-overlay-opacity: 0;
   --graphgpt-frost-noise-opacity: 0;
 }
 
 .graphgpt-pageux[data-graphgpt-theme="dark"][data-glass-enabled="false"] {
-  --graphgpt-glass-bg: rgba(31, 41, 55, 0.95);
-  --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.98);
-  --graphgpt-glass-border: rgba(255, 255, 255, 0.15);
-  --graphgpt-glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --graphgpt-glass-bg: rgba(31, 41, 55, 0.9);
+  --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.92);
+  --graphgpt-glass-border: rgba(255, 255, 255, 0.12);
+  --graphgpt-glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 /* Fallback for browsers without backdrop-filter support */
 @supports not (backdrop-filter: blur(1px)) {
   .graphgpt-pageux {
-    --graphgpt-glass-bg: rgba(255, 255, 255, 0.95);
-    --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.98);
-    --graphgpt-glass-border: rgba(0, 0, 0, 0.12);
+    --graphgpt-glass-bg: rgba(255, 255, 255, 0.9);
+    --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.92);
+    --graphgpt-glass-border: rgba(0, 0, 0, 0.08);
     --graphgpt-glass-blur: 0px;
   }
   
   .graphgpt-pageux[data-graphgpt-theme="dark"] {
-    --graphgpt-glass-bg: rgba(31, 41, 55, 0.95);
-    --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.98);
-    --graphgpt-glass-border: rgba(255, 255, 255, 0.15);
+    --graphgpt-glass-bg: rgba(31, 41, 55, 0.9);
+    --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.92);
+    --graphgpt-glass-border: rgba(255, 255, 255, 0.12);
   }
 }
 

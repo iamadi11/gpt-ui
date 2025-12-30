@@ -133,6 +133,10 @@ async function init() {
           
           const frostNoise = settings.frostedNoiseEnabled === true && frostEnabled;
           reactContainer.setAttribute('data-frost-noise', frostNoise ? '1' : '0');
+          
+          // V6: Update drawer transparency
+          const drawerAlpha = settings.drawerTransparency ?? 0.32;
+          reactContainer.style.setProperty('--drawer-alpha', String(drawerAlpha));
         }
         
         // Update frost settings for enhance mode (page UX)

@@ -48,6 +48,10 @@
   --frost-noise-opacity: 0.04;
   --frost-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 2px);
   --glass-surface-opacity: 0.75;
+  
+  /* V6: Drawer transparency - default 0.32 (32% opacity) */
+  --drawer-alpha: 0.32;
+  --drawer-bg: rgba(255, 255, 255, var(--drawer-alpha));
 }
 
 [data-theme="dark"] {
@@ -88,6 +92,10 @@
   --frost-noise-opacity: 0.03;
   --frost-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 2px);
   --glass-surface-opacity: 0.8;
+  
+  /* V6: Drawer transparency - Dark theme */
+  --drawer-alpha: 0.32;
+  --drawer-bg: rgba(31, 41, 55, var(--drawer-alpha));
 }
 
 /* Glassmorphism intensity variations */
@@ -224,14 +232,16 @@
   width: 800px; /* Wider to accommodate Knowledge Panel on desktop */
   max-width: calc(100vw - 40px); /* Responsive: leave some margin */
   height: 100vh;
-  background: var(--bg-primary);
+  background: var(--drawer-bg); /* V6: Use drawer transparency */
   box-shadow: -2px 0 12px rgba(0, 0, 0, 0.15);
   pointer-events: auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
   border-left: 1px solid var(--border-color);
+  backdrop-filter: blur(20px) saturate(180%); /* V6: Strong blur to maintain readability */
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 /* Frost overlay for panel container */

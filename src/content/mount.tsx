@@ -42,6 +42,10 @@ export function mountApp(
   const frostNoise = props.settings.frostedNoiseEnabled === true && frostEnabled; // default false
   container.setAttribute('data-frost-noise', frostNoise ? '1' : '0');
   
+  // V6: Apply drawer transparency
+  const drawerAlpha = props.settings.drawerTransparency ?? 0.32;
+  container.style.setProperty('--drawer-alpha', String(drawerAlpha));
+  
   // Create React root and render
   const root = createRoot(container);
   root.render(React.createElement(App, props));

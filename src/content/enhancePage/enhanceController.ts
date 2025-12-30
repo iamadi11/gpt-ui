@@ -206,6 +206,114 @@ function getInlineStylesCSS(): string {
     [data-graphgpt-inline="1"] .graphgpt-inline-action-btn:active {
       opacity: 0.7;
     }
+    /* V6: Preview Container */
+    [data-graphgpt-inline="1"] .graphgpt-preview-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--graphgpt-inline-border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      backdrop-filter: blur(8px) saturate(150%);
+      -webkit-backdrop-filter: blur(8px) saturate(150%);
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-container[data-aspect-ratio="4:3"] {
+      padding-bottom: 75%;
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--graphgpt-inline-text-secondary);
+      font-size: 13px;
+      text-align: center;
+      z-index: 1;
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: white;
+      border-radius: inherit;
+    }
+    @media (prefers-color-scheme: dark) {
+      [data-graphgpt-inline="1"] .graphgpt-preview-iframe {
+        background: #1a1a1a;
+      }
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-fallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: var(--graphgpt-inline-bg);
+      border-radius: inherit;
+      z-index: 2;
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-fallback-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-fallback-icon {
+      margin-bottom: 12px;
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-fallback-icon img {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-fallback-text {
+      margin-bottom: 16px;
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-fallback-domain {
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--graphgpt-inline-text);
+      margin-bottom: 4px;
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-fallback-message {
+      font-size: 12px;
+      color: var(--graphgpt-inline-text-secondary);
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-fallback-actions {
+      display: flex;
+      gap: 8px;
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-action-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--graphgpt-inline-link);
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--graphgpt-inline-border);
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    @media (prefers-color-scheme: dark) {
+      [data-graphgpt-inline="1"] .graphgpt-preview-action-btn {
+        background: rgba(255, 255, 255, 0.05);
+      }
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-action-btn:hover {
+      background: var(--graphgpt-inline-hover);
+      border-color: var(--graphgpt-inline-link);
+    }
+    [data-graphgpt-inline="1"] .graphgpt-preview-action-btn:active {
+      opacity: 0.7;
+    }
     .graphgpt-sources-collapsed {
       display: none;
     }

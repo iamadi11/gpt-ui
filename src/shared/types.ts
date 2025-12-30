@@ -42,6 +42,11 @@ export interface ExtensionSettings {
   frostedOverlaysEnabled?: boolean; // Enable frosted gradient overlays
   frostedNoiseEnabled?: boolean; // Enable subtle noise/grain texture
   frostStyle?: 'classic' | 'minimal'; // Frost overlay style
+  // V6: Drawer transparency
+  drawerTransparency?: number; // 0.15 to 0.55, alpha value for drawer background (lower = more transparent)
+  // V6: Inline preview settings
+  inlinePreviewMode?: 'top3' | 'lazy'; // Preview loading mode
+  previewAspectRatio?: '16:9' | '4:3'; // Preview aspect ratio
 }
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {

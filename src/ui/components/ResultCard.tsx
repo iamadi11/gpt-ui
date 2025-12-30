@@ -1,61 +1,67 @@
-import React from 'react';
-import type { SearchResult } from '../types';
-import { getFaviconUrl } from '../../shared/utils/url';
+import React, { useState } from 'react';
+import type { Result } from '../types';
 
 interface ResultCardProps {
-  result: SearchResult;
+  result: Result;
   onOpen: (url: string) => void;
   onCopyLink: (url: string) => void;
-  onCopyDomain: (domain: string) => void;
-  onHighlight: (element?: HTMLElement) => void;
+  onCopyCitation: (citation: string) => void;
+  onHighlight: (sourceNodeSelectorHint: string, url: string, sourceMessageId?: string) => void;
 }
 
 export const ResultCard: React.FC<ResultCardProps> = ({
   result,
   onOpen,
   onCopyLink,
-  onCopyDomain,
+  onCopyCitation,
   onHighlight,
 }) => {
-  const faviconUrl = getFaviconUrl(result.domain);
+  const [faviconError, setFaviconError] = useState(false);
+  
+  // Use Chrome's internal favicon service
+  const faviconUrl = `chrome://favicon2/?size=32&scale_factor=1x&page_url=${encodeURIComponent(result.url)}`;
+  const fallbackFavicon = '🌐'; // Generic globe icon as fallback
 
   const handleOpen = (e: React.MouseEvent) => {
     e.preventDefault();
     onOpen(result.url);
   };
 
-  const handleCopyLink = (e: React.MouseEvent) => {
+  const handleCopyLink = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onCopyLink(result.url);
+    await onCopyLink(result.url);
   };
 
-  const handleCopyDomain = (e: React.MouseEvent) => {
+  const handleCopyCitation = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onCopyDomain(result.domain);
+    // Format: [title] (domain) - url
+    const citation = `[${result.title}] (${result.domain}) - ${result.url}`;
+    await onCopyCitation(citation);
   };
 
   const handleHighlight = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onHighlight(result.element);
+    onHighlight(result.sourceNodeSelectorHint, result.url, result.sourceMessageId);
   };
 
   return (
     <div className="result-card">
       <div className="result-header">
-        {faviconUrl && (
-          <img
-            src={faviconUrl}
-            alt=""
-            className="result-favicon"
-            onError={(e) => {
-              // Hide favicon if it fails to load
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
-          />
-        )}
+        <div className="result-favicon-wrapper">
+          {!faviconError ? (
+            <img
+              src={faviconUrl}
+              alt=""
+              className="result-favicon"
+              onError={() => setFaviconError(true)}
+            />
+          ) : (
+            <span className="result-favicon-fallback">{fallbackFavicon}</span>
+          )}
+        </div>
         <a
           href={result.url}
           target="_blank"
@@ -65,24 +71,52 @@ export const ResultCard: React.FC<ResultCardProps> = ({
         >
           {result.title}
         </a>
+        {result.duplicateCount && result.duplicateCount > 1 && (
+          <span className="result-duplicate-badge" title={`This URL appears ${result.duplicateCount} times`}>
+            {result.duplicateCount}
+          </span>
+        )}
       </div>
       <div className="result-domain">{result.domain}</div>
+      {result.tags && result.tags.length > 0 && (
+        <div className="result-tags">
+          {result.tags.map((tag) => (
+            <span key={tag} className="result-tag">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
       <div className="result-snippet">{result.snippet}</div>
       <div className="result-actions">
-        <button className="action-button" onClick={handleOpen}>
+        <button 
+          className="action-button" 
+          onClick={handleOpen}
+          aria-label={`Open ${result.title}`}
+        >
           Open
         </button>
-        <button className="action-button" onClick={handleCopyLink}>
+        <button 
+          className="action-button" 
+          onClick={handleCopyLink}
+          aria-label="Copy link"
+        >
           Copy link
         </button>
-        <button className="action-button" onClick={handleCopyDomain}>
-          Copy domain
+        <button 
+          className="action-button" 
+          onClick={handleCopyCitation}
+          aria-label="Copy citation"
+        >
+          Copy citation
         </button>
-        {result.element && (
-          <button className="action-button" onClick={handleHighlight}>
-            Highlight
-          </button>
-        )}
+        <button 
+          className="action-button" 
+          onClick={handleHighlight}
+          aria-label="Highlight in chat"
+        >
+          Highlight
+        </button>
       </div>
     </div>
   );

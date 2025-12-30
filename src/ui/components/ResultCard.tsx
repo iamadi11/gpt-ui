@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { Result } from '../types';
 
 interface ResultCardProps {
@@ -12,6 +12,9 @@ interface ResultCardProps {
   onFilterByDomain?: (domain: string) => void;
   isPinned?: boolean;
   highlightedSnippet?: string; // V3.1: HTML string with highlighted keywords
+  // V6.1: Hover preview popover
+  onPreviewHover?: (result: Result, anchorRect: DOMRect | null) => void;
+  onPreviewHoverEnd?: () => void;
 }
 
 export const ResultCard: React.FC<ResultCardProps> = ({
@@ -25,12 +28,71 @@ export const ResultCard: React.FC<ResultCardProps> = ({
   onFilterByDomain,
   isPinned,
   highlightedSnippet,
+  onPreviewHover,
+  onPreviewHoverEnd,
 }) => {
   const [faviconError, setFaviconError] = useState(false);
+  const previewThumbRef = useRef<HTMLDivElement>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   
   // Use Chrome's internal favicon service
   const faviconUrl = `chrome://favicon2/?size=32&scale_factor=1x&page_url=${encodeURIComponent(result.url)}`;
   const fallbackFavicon = '🌐'; // Generic globe icon as fallback
+
+  // V6.1: Handle preview hover
+  const handlePreviewMouseEnter = () => {
+    if (!onPreviewHover || !previewThumbRef.current) return;
+    
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    
+    hoverTimeoutRef.current = setTimeout(() => {
+      const rect = previewThumbRef.current?.getBoundingClientRect() || null;
+      onPreviewHover(result, rect);
+    }, 120); // 120ms delay before opening
+  };
+
+  const handlePreviewMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    if (onPreviewHoverEnd) {
+      setTimeout(() => {
+        onPreviewHoverEnd();
+      }, 150); // 150ms delay before closing
+    }
+  };
+
+  const handlePreviewFocus = () => {
+    if (!onPreviewHover || !previewThumbRef.current) return;
+    const rect = previewThumbRef.current.getBoundingClientRect();
+    onPreviewHover(result, rect);
+  };
+
+  const handlePreviewBlur = () => {
+    if (onPreviewHoverEnd) {
+      onPreviewHoverEnd();
+    }
+  };
+
+  const handlePreviewKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (onPreviewHover && previewThumbRef.current) {
+        const rect = previewThumbRef.current.getBoundingClientRect();
+        onPreviewHover(result, rect);
+      }
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleOpen = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -102,6 +164,28 @@ export const ResultCard: React.FC<ResultCardProps> = ({
           ))}
         </div>
       )}
+      
+      {/* V6.1: Preview thumbnail area (hover to enlarge) */}
+      {onPreviewHover && (
+        <div
+          ref={previewThumbRef}
+          className="result-preview-thumb"
+          onMouseEnter={handlePreviewMouseEnter}
+          onMouseLeave={handlePreviewMouseLeave}
+          onFocus={handlePreviewFocus}
+          onBlur={handlePreviewBlur}
+          onKeyDown={handlePreviewKeyDown}
+          tabIndex={0}
+          role="button"
+          aria-label="Expand preview"
+        >
+          <div className="result-preview-thumb-content">
+            <span className="result-preview-thumb-icon">👁️</span>
+            <span className="result-preview-thumb-text">Hover to preview</span>
+          </div>
+        </div>
+      )}
+      
       <div 
         className="result-snippet"
         dangerouslySetInnerHTML={highlightedSnippet ? { __html: highlightedSnippet } : undefined}

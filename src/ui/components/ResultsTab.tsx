@@ -26,6 +26,9 @@ interface ResultsTabProps {
   onPreview?: (result: Result) => void;
   isPinned?: (id: string) => boolean;
   showQueryContext?: boolean;
+  // V6.1: Preview hover handlers
+  onPreviewHover?: (result: Result, anchorRect: DOMRect | null) => void;
+  onPreviewHoverEnd?: () => void;
 }
 
 export const ResultsTab: React.FC<ResultsTabProps> = ({
@@ -40,6 +43,8 @@ export const ResultsTab: React.FC<ResultsTabProps> = ({
   onPreview,
   isPinned,
   showQueryContext = true,
+  onPreviewHover,
+  onPreviewHoverEnd,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -294,6 +299,8 @@ export const ResultsTab: React.FC<ResultsTabProps> = ({
                         onFilterByDomain={handleFilterByDomain}
                         isPinned={isPinned?.(result.id)}
                         highlightedSnippet={getHighlightedSnippet(result.snippet || '')}
+                        onPreviewHover={onPreviewHover}
+                        onPreviewHoverEnd={onPreviewHoverEnd}
                       />
                     ))}
                   </div>

@@ -16,6 +16,9 @@ interface PanelProps {
   isPinned?: (id: string) => boolean;
   lastUpdated?: Date;
   onEnhanceModeToggle?: (enabled: boolean) => void; // V4: Callback for enhance mode toggle
+  // V6.1: Preview hover handlers
+  onPreviewHover?: (result: Result, anchorRect: DOMRect | null) => void;
+  onPreviewHoverEnd?: () => void;
 }
 
 type TabType = 'results' | 'pins' | 'history';
@@ -30,6 +33,8 @@ export const Panel: React.FC<PanelProps> = ({
   isPinned,
   lastUpdated,
   onEnhanceModeToggle,
+  onPreviewHover,
+  onPreviewHoverEnd,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>(settings.defaultTab || 'results');
   const [previewResult, setPreviewResult] = useState<Result | null>(null);
@@ -94,6 +99,8 @@ export const Panel: React.FC<PanelProps> = ({
             onPreview={handlePreview}
             isPinned={isPinned}
             showQueryContext={true}
+            onPreviewHover={onPreviewHover}
+            onPreviewHoverEnd={onPreviewHoverEnd}
           />
         );
       case 'pins':

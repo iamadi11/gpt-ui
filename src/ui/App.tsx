@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Panel } from './components/Panel';
 import { SettingsModal } from './components/SettingsModal';
 import { CommandPalette } from './components/CommandPalette';
+import { PreviewPopover } from './components/PreviewPopover';
 import type { Command } from './hooks/useCommandPalette';
 import { usePins } from './hooks/usePins';
 import type { Result, ExtensionSettings } from './types';
@@ -33,6 +34,18 @@ export const App: React.FC<AppProps> = ({
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const { pinItem, unpinItem, checkIsPinned } = usePins();
   const [pinnedIds, setPinnedIds] = useState<Set<string>>(new Set());
+  
+  // V6.1: Preview popover state
+  const [previewPopover, setPreviewPopover] = useState<{
+    open: boolean;
+    result: Result | null;
+    anchorRect: DOMRect | null;
+  }>({
+    open: false,
+    result: null,
+    anchorRect: null,
+  });
+  const containerRef = useRef<HTMLElement | null>(null);
 
   // Check pin status for all results
   useEffect(() => {
@@ -82,6 +95,50 @@ export const App: React.FC<AppProps> = ({
   const isPinned = useCallback((id: string): boolean => {
     return pinnedIds.has(id);
   }, [pinnedIds]);
+
+  // V6.1: Preview hover handlers
+  const handlePreviewHover = useCallback((result: Result, anchorRect: DOMRect | null) => {
+    setPreviewPopover({
+      open: true,
+      result,
+      anchorRect,
+    });
+  }, []);
+
+  const handlePreviewHoverEnd = useCallback(() => {
+    setPreviewPopover(prev => ({ ...prev, open: false }));
+  }, []);
+
+  const handlePreviewPopoverClose = useCallback(() => {
+    setPreviewPopover(prev => ({ ...prev, open: false }));
+  }, []);
+
+  const handlePreviewPopoverOpen = useCallback((url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }, []);
+
+  const handlePreviewPopoverCopyLink = useCallback(async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+    }
+  }, []);
+
+  // Get container element (shadow root host)
+  useEffect(() => {
+    // Find the shadow root container
+    const findContainer = () => {
+      const root = document.getElementById('graphgpt-root');
+      if (root) {
+        containerRef.current = root;
+      }
+    };
+    findContainer();
+    // Re-check periodically in case it's not ready yet
+    const interval = setInterval(findContainer, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   // V4: Handle enhance mode toggle
   const handleEnhanceModeToggle = useCallback(async (enabled: boolean) => {
@@ -168,6 +225,8 @@ export const App: React.FC<AppProps> = ({
         isPinned={isPinned}
         lastUpdated={lastUpdated}
         onEnhanceModeToggle={handleEnhanceModeToggle}
+        onPreviewHover={handlePreviewHover}
+        onPreviewHoverEnd={handlePreviewHoverEnd}
       />
       {showSettings && (
         <SettingsModal
@@ -180,6 +239,15 @@ export const App: React.FC<AppProps> = ({
         isOpen={showCommandPalette}
         commands={commands}
         onClose={() => setShowCommandPalette(false)}
+      />
+      <PreviewPopover
+        open={previewPopover.open}
+        anchorRect={previewPopover.anchorRect}
+        result={previewPopover.result}
+        onClose={handlePreviewPopoverClose}
+        onOpen={handlePreviewPopoverOpen}
+        onCopyLink={handlePreviewPopoverCopyLink}
+        containerElement={containerRef.current || undefined}
       />
     </>
   );

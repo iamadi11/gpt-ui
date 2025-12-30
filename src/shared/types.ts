@@ -38,6 +38,10 @@ export interface ExtensionSettings {
   // Glassmorphism theme
   glassmorphismEnabled?: boolean; // Enable glassmorphism visual style
   glassIntensity?: 'subtle' | 'normal' | 'strong'; // Glassmorphism blur intensity
+  // Frosted gradient overlays
+  frostedOverlaysEnabled?: boolean; // Enable frosted gradient overlays
+  frostedNoiseEnabled?: boolean; // Enable subtle noise/grain texture
+  frostStyle?: 'classic' | 'minimal'; // Frost overlay style
 }
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
@@ -58,6 +62,10 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   enhancePageEnabled: false,
   collapseRawSources: true,
   inlineLayoutDensity: 'compact',
+  // V5.1: Frosted overlays defaults
+  frostedOverlaysEnabled: true,
+  frostedNoiseEnabled: false,
+  frostStyle: 'classic',
 };
 
 // V3: Pinboard types

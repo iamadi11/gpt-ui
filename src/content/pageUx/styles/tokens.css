@@ -32,6 +32,15 @@
   
   /* Hover lift */
   --graphgpt-hover-lift: translateY(-2px);
+  
+  /* Frosted gradient overlays - Light theme */
+  --graphgpt-frost-overlay-1: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.4) 0%, transparent 50%),
+                                linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(240, 248, 255, 0.1) 100%);
+  --graphgpt-frost-overlay-2: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 40%);
+  --graphgpt-frost-overlay-opacity: 0.55;
+  --graphgpt-frost-overlay-blend: soft-light;
+  --graphgpt-frost-noise-opacity: 0.04;
+  --graphgpt-frost-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 2px);
 }
 
 .graphgpt-pageux[data-graphgpt-theme="dark"] {
@@ -54,6 +63,15 @@
   
   /* Link color - Dark theme */
   --graphgpt-link-color: #60a5fa;
+  
+  /* Frosted gradient overlays - Dark theme */
+  --graphgpt-frost-overlay-1: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+                                linear-gradient(135deg, rgba(100, 150, 255, 0.05) 0%, rgba(60, 80, 120, 0.03) 100%);
+  --graphgpt-frost-overlay-2: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 40%);
+  --graphgpt-frost-overlay-opacity: 0.5;
+  --graphgpt-frost-overlay-blend: soft-light;
+  --graphgpt-frost-noise-opacity: 0.03;
+  --graphgpt-frost-highlight: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 2px);
 }
 
 /* Glassmorphism intensity variations */
@@ -62,12 +80,16 @@
   --graphgpt-glass-bg: rgba(255, 255, 255, 0.85);
   --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.92);
   --graphgpt-glass-border: rgba(0, 0, 0, 0.1);
+  --graphgpt-frost-overlay-opacity: 0.3;
+  --graphgpt-frost-noise-opacity: 0;
 }
 
 .graphgpt-pageux[data-graphgpt-theme="dark"][data-glass-intensity="subtle"] {
   --graphgpt-glass-bg: rgba(31, 41, 55, 0.85);
   --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.92);
   --graphgpt-glass-border: rgba(255, 255, 255, 0.12);
+  --graphgpt-frost-overlay-opacity: 0.25;
+  --graphgpt-frost-noise-opacity: 0;
 }
 
 .graphgpt-pageux[data-glass-intensity="strong"] {
@@ -75,12 +97,34 @@
   --graphgpt-glass-bg: rgba(255, 255, 255, 0.65);
   --graphgpt-glass-bg-2: rgba(255, 255, 255, 0.75);
   --graphgpt-glass-border: rgba(0, 0, 0, 0.12);
+  --graphgpt-frost-overlay-opacity: 0.7;
+  --graphgpt-frost-noise-opacity: 0.06;
 }
 
 .graphgpt-pageux[data-graphgpt-theme="dark"][data-glass-intensity="strong"] {
   --graphgpt-glass-bg: rgba(31, 41, 55, 0.7);
   --graphgpt-glass-bg-2: rgba(31, 41, 55, 0.8);
   --graphgpt-glass-border: rgba(255, 255, 255, 0.18);
+  --graphgpt-frost-overlay-opacity: 0.65;
+  --graphgpt-frost-noise-opacity: 0.05;
+}
+
+/* Frost style variations */
+.graphgpt-pageux[data-graphgpt-frost-style="minimal"] {
+  --graphgpt-frost-overlay-1: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+  --graphgpt-frost-overlay-2: none;
+  --graphgpt-frost-overlay-opacity: 0.4;
+}
+
+.graphgpt-pageux[data-graphgpt-theme="dark"][data-graphgpt-frost-style="minimal"] {
+  --graphgpt-frost-overlay-1: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 50%);
+  --graphgpt-frost-overlay-opacity: 0.35;
+}
+
+.graphgpt-pageux[data-graphgpt-frost-enabled="false"] {
+  --graphgpt-frost-overlay-opacity: 0;
+  --graphgpt-frost-noise-opacity: 0;
+  --graphgpt-frost-highlight: none;
 }
 
 /* Disable glassmorphism */
@@ -90,6 +134,8 @@
   --graphgpt-glass-border: rgba(0, 0, 0, 0.12);
   --graphgpt-glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   --graphgpt-glass-blur: 0px;
+  --graphgpt-frost-overlay-opacity: 0;
+  --graphgpt-frost-noise-opacity: 0;
 }
 
 .graphgpt-pageux[data-graphgpt-theme="dark"][data-glass-enabled="false"] {

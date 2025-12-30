@@ -315,6 +315,72 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
 
+          {/* Frosted Overlays Settings */}
+          {localSettings.glassmorphismEnabled !== false && (
+            <>
+              <div className="settings-item" style={{ marginTop: '24px' }}>
+                <label className="settings-label">
+                  <input
+                    type="checkbox"
+                    checked={localSettings.frostedOverlaysEnabled !== false}
+                    onChange={(e) => handleChange('frostedOverlaysEnabled' as any, e.target.checked)}
+                  />
+                  Enable frosted gradient overlays
+                </label>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px', marginLeft: '24px' }}>
+                  Subtle gradient overlays that enhance depth
+                </p>
+              </div>
+
+              {localSettings.frostedOverlaysEnabled !== false && (
+                <>
+                  <div className="settings-item">
+                    <label className="settings-label">Frost style</label>
+                    <div className="settings-radio-group">
+                      <label>
+                        <input
+                          type="radio"
+                          name="frostStyle"
+                          value="classic"
+                          checked={localSettings.frostStyle === 'classic' || !localSettings.frostStyle}
+                          onChange={(e) => handleChange('frostStyle' as any, e.target.value as 'classic' | 'minimal')}
+                        />
+                        Classic
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="frostStyle"
+                          value="minimal"
+                          checked={localSettings.frostStyle === 'minimal'}
+                          onChange={(e) => handleChange('frostStyle' as any, e.target.value as 'classic' | 'minimal')}
+                        />
+                        Minimal
+                      </label>
+                    </div>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                      Classic: two gradient layers + highlight. Minimal: single gradient + highlight.
+                    </p>
+                  </div>
+
+                  <div className="settings-item">
+                    <label className="settings-label">
+                      <input
+                        type="checkbox"
+                        checked={localSettings.frostedNoiseEnabled === true}
+                        onChange={(e) => handleChange('frostedNoiseEnabled' as any, e.target.checked)}
+                      />
+                      Enable subtle noise texture
+                    </label>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px', marginLeft: '24px' }}>
+                      Very subtle texture to reduce gradient banding (optional)
+                    </p>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+
           {/* V3.1: Privacy Controls */}
           <div className="settings-item">
             <div className="settings-label" style={{ marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>

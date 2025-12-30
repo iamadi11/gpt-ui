@@ -331,6 +331,22 @@ export function enableEnhanceMode(settings: ExtensionSettings): void {
   // Inject styles
   injectStyles();
   
+  // Add class to documentElement for scoped styling
+  document.documentElement.classList.add('graphgpt-enhanced');
+  
+  // Apply frost overlay settings to documentElement
+  const glassEnabled = settings.glassmorphismEnabled !== false;
+  const frostEnabled = settings.frostedOverlaysEnabled !== false && glassEnabled;
+  if (frostEnabled) {
+    document.documentElement.setAttribute('data-graphgpt-frost-enabled', 'true');
+    const frostStyle = settings.frostStyle || 'classic';
+    document.documentElement.setAttribute('data-graphgpt-frost-style', frostStyle);
+    const frostNoise = settings.frostedNoiseEnabled === true;
+    document.documentElement.setAttribute('data-graphgpt-frost-noise', frostNoise ? '1' : '0');
+  } else {
+    document.documentElement.setAttribute('data-graphgpt-frost-enabled', 'false');
+  }
+  
   // Extract results and apply
   const results = extractResults(settings.snippetLength || 150);
   applyEnhancementsOnce(results, settings);
@@ -357,6 +373,27 @@ export function disableEnhanceMode(): void {
   
   // Remove styles
   removeStyles();
+}
+
+/**
+ * Update frost overlay settings (called when settings change)
+ */
+export function updateFrostSettings(settings: ExtensionSettings): void {
+  if (!isEnhanceModeEnabled) {
+    return;
+  }
+  
+  const glassEnabled = settings.glassmorphismEnabled !== false;
+  const frostEnabled = settings.frostedOverlaysEnabled !== false && glassEnabled;
+  if (frostEnabled) {
+    document.documentElement.setAttribute('data-graphgpt-frost-enabled', 'true');
+    const frostStyle = settings.frostStyle || 'classic';
+    document.documentElement.setAttribute('data-graphgpt-frost-style', frostStyle);
+    const frostNoise = settings.frostedNoiseEnabled === true;
+    document.documentElement.setAttribute('data-graphgpt-frost-noise', frostNoise ? '1' : '0');
+  } else {
+    document.documentElement.setAttribute('data-graphgpt-frost-enabled', 'false');
+  }
 }
 
 /**

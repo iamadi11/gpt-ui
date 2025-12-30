@@ -40,6 +40,44 @@
   line-height: 1.5;
   color: var(--graphgpt-inline-text);
   backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Frost overlay for inline results container - using graphgpt-enhanced class */
+.graphgpt-enhanced[data-graphgpt-frost-enabled="true"] [data-graphgpt-inline="1"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: var(--graphgpt-frost-overlay-1), var(--graphgpt-frost-overlay-2);
+  opacity: var(--graphgpt-frost-overlay-opacity);
+  mix-blend-mode: var(--graphgpt-frost-overlay-blend);
+  z-index: -1;
+}
+
+.graphgpt-enhanced[data-graphgpt-frost-enabled="true"][data-graphgpt-frost-style="minimal"] [data-graphgpt-inline="1"]::before {
+  background: var(--graphgpt-frost-overlay-1);
+}
+
+.graphgpt-enhanced[data-graphgpt-frost-enabled="true"] [data-graphgpt-inline="1"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--graphgpt-frost-highlight);
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.graphgpt-enhanced[data-graphgpt-frost-enabled="false"] [data-graphgpt-inline="1"]::before,
+.graphgpt-enhanced[data-graphgpt-frost-enabled="false"] [data-graphgpt-inline="1"]::after {
+  display: none;
 }
 
 /* Header */

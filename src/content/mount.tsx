@@ -32,6 +32,16 @@ export function mountApp(
   const glassIntensity = props.settings.glassIntensity || 'normal';
   container.setAttribute('data-glass-intensity', glassIntensity);
   
+  // Apply frost overlay settings
+  const frostEnabled = props.settings.frostedOverlaysEnabled !== false && glassEnabled; // default true, only if glass enabled
+  container.setAttribute('data-frost-enabled', frostEnabled ? 'true' : 'false');
+  
+  const frostStyle = props.settings.frostStyle || 'classic';
+  container.setAttribute('data-frost-style', frostStyle);
+  
+  const frostNoise = props.settings.frostedNoiseEnabled === true && frostEnabled; // default false
+  container.setAttribute('data-frost-noise', frostNoise ? '1' : '0');
+  
   // Create React root and render
   const root = createRoot(container);
   root.render(React.createElement(App, props));

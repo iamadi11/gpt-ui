@@ -7,7 +7,7 @@ import { highlightInChat, toggleHighlights } from './highlight';
 import { detectTheme } from '../ui/theme';
 import { hashUrl } from '../shared/utils/hash';
 import { normalizeUrl } from '../shared/utils/url';
-import { toggleEnhanceMode, reapplyEnhancements, isEnhanceModeActive } from './enhancePage/enhanceController';
+import { toggleEnhanceMode, reapplyEnhancements, isEnhanceModeActive, updateFrostSettings } from './enhancePage/enhanceController';
 import type { ContentScriptMessage } from './enhancePage/types';
 // Import CSS as inline string for shadow DOM injection
 // @ts-ignore - Vite handles ?inline
@@ -91,6 +91,16 @@ async function init() {
   
   const glassIntensity = currentSettings.glassIntensity || 'normal';
   reactContainer.setAttribute('data-glass-intensity', glassIntensity);
+  
+  // Apply frost overlay settings
+  const frostEnabled = currentSettings.frostedOverlaysEnabled !== false && glassEnabled;
+  reactContainer.setAttribute('data-frost-enabled', frostEnabled ? 'true' : 'false');
+  
+  const frostStyle = currentSettings.frostStyle || 'classic';
+  reactContainer.setAttribute('data-frost-style', frostStyle);
+  
+  const frostNoise = currentSettings.frostedNoiseEnabled === true && frostEnabled;
+  reactContainer.setAttribute('data-frost-noise', frostNoise ? '1' : '0');
 
   // Mount React app
   if (!reactApp) {
@@ -105,6 +115,31 @@ async function init() {
       onSettingsChange: async (settings) => {
         await setSettings(settings);
         currentSettings = settings;
+        
+        // Update glassmorphism and frost attributes on container immediately
+        const reactContainer = shadowRoot?.querySelector('#react-root') as HTMLElement;
+        if (reactContainer) {
+          const glassEnabled = settings.glassmorphismEnabled !== false;
+          reactContainer.setAttribute('data-glass-enabled', glassEnabled ? 'true' : 'false');
+          
+          const glassIntensity = settings.glassIntensity || 'normal';
+          reactContainer.setAttribute('data-glass-intensity', glassIntensity);
+          
+          const frostEnabled = settings.frostedOverlaysEnabled !== false && glassEnabled;
+          reactContainer.setAttribute('data-frost-enabled', frostEnabled ? 'true' : 'false');
+          
+          const frostStyle = settings.frostStyle || 'classic';
+          reactContainer.setAttribute('data-frost-style', frostStyle);
+          
+          const frostNoise = settings.frostedNoiseEnabled === true && frostEnabled;
+          reactContainer.setAttribute('data-frost-noise', frostNoise ? '1' : '0');
+        }
+        
+        // Update frost settings for enhance mode (page UX)
+        if (isEnhanceModeActive()) {
+          updateFrostSettings(settings);
+        }
+        
         renderPanel();
       },
       onHighlight: (sourceNodeSelectorHint: string, url: string, sourceMessageId?: string) => {

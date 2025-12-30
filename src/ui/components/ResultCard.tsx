@@ -7,6 +7,9 @@ interface ResultCardProps {
   onCopyLink: (url: string) => void;
   onCopyCitation: (citation: string) => void;
   onHighlight: (sourceNodeSelectorHint: string, url: string, sourceMessageId?: string) => void;
+  onPin?: (result: Result) => void;
+  onPreview?: (result: Result) => void;
+  isPinned?: boolean;
 }
 
 export const ResultCard: React.FC<ResultCardProps> = ({
@@ -15,6 +18,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({
   onCopyLink,
   onCopyCitation,
   onHighlight,
+  onPin,
+  onPreview,
+  isPinned,
 }) => {
   const [faviconError, setFaviconError] = useState(false);
   
@@ -76,6 +82,11 @@ export const ResultCard: React.FC<ResultCardProps> = ({
             {result.duplicateCount}
           </span>
         )}
+        {isPinned && (
+          <span className="result-pinned-badge" title="Pinned">
+            📌
+          </span>
+        )}
       </div>
       <div className="result-domain">{result.domain}</div>
       {result.tags && result.tags.length > 0 && (
@@ -89,6 +100,20 @@ export const ResultCard: React.FC<ResultCardProps> = ({
       )}
       <div className="result-snippet">{result.snippet}</div>
       <div className="result-actions">
+        {onPreview && (
+          <button 
+            className="action-button" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onPreview(result);
+            }}
+            aria-label="Preview"
+            title="Preview"
+          >
+            👁️ Preview
+          </button>
+        )}
         <button 
           className="action-button" 
           onClick={handleOpen}
@@ -96,6 +121,20 @@ export const ResultCard: React.FC<ResultCardProps> = ({
         >
           Open
         </button>
+        {onPin && (
+          <button 
+            className={`action-button ${isPinned ? 'pinned' : ''}`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onPin(result);
+            }}
+            aria-label={isPinned ? 'Unpin' : 'Pin'}
+            title={isPinned ? 'Unpin' : 'Pin'}
+          >
+            {isPinned ? '📌 Unpin' : '📌 Pin'}
+          </button>
+        )}
         <button 
           className="action-button" 
           onClick={handleCopyLink}

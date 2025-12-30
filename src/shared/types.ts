@@ -18,9 +18,13 @@ export interface ExtensionSettings {
   enabled: boolean;
   panelPosition: 'right' | 'left';
   defaultView: 'top' | 'all' | 'grouped';
+  defaultTab: 'results' | 'pins' | 'history';
   autoOpenPanel: boolean;
+  autoOpenPreview: boolean; // V3: auto-open preview in split mode
   highlightSourcesInChat: boolean;
   snippetLength: number; // 120-320 chars
+  enableTopRanking: boolean; // V3: enable smart ranking for top results
+  historyEnabled: boolean; // V3: enable session history
   showGroupedByDomain?: boolean; // legacy, use defaultView instead
 }
 
@@ -28,9 +32,52 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   enabled: true,
   panelPosition: 'right',
   defaultView: 'top',
+  defaultTab: 'results',
   autoOpenPanel: true,
+  autoOpenPreview: false,
   highlightSourcesInChat: false,
   snippetLength: 150,
+  enableTopRanking: true,
+  historyEnabled: true,
   showGroupedByDomain: true, // legacy support
 };
+
+// V3: Pinboard types
+export interface PinnedItem {
+  id: string; // hash(normalizedUrl)
+  url: string;
+  title: string;
+  domain: string;
+  tags: string[]; // derived + user tags
+  pinnedAt: number; // epoch
+  lastSeenAt: number; // epoch
+  sourceChatIdHash?: string; // hashed chat/conversation ID (no raw id stored)
+  note?: string; // short user note (max 280 chars)
+  folderId?: string; // optional collection folder ID
+}
+
+export interface Folder {
+  id: string; // uuid
+  name: string;
+  createdAt: number;
+  color?: string; // optional color for UI
+}
+
+// V3: Session history types
+export interface SessionRecord {
+  sessionId: string; // random uuid
+  createdAt: number;
+  chatIdHash?: string;
+  resultCount: number;
+  domainsTop: string[]; // top 3 domains
+  resultIds: string[]; // hashed URL IDs (no text)
+}
+
+// V3: Storage schema version
+export const STORAGE_SCHEMA_VERSION = 3;
+
+// V3: Limits
+export const MAX_PINS = 2000;
+export const MAX_HISTORY_SESSIONS = 50;
+export const MAX_CACHE_SIZE = 200;
 

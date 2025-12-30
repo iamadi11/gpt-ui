@@ -19,9 +19,13 @@ let currentSettings: ExtensionSettings = {
   enabled: true,
   panelPosition: 'right',
   defaultView: 'top',
+  defaultTab: 'results',
   autoOpenPanel: true,
+  autoOpenPreview: false,
   highlightSourcesInChat: false,
   snippetLength: 150,
+  enableTopRanking: true,
+  historyEnabled: true,
 };
 let domObserver: MutationObserver | null = null;
 

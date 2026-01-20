@@ -25,7 +25,7 @@ export default function Home() {
 
     setLoading(true)
     try {
-      const response = await fetch('/api/infer-intent', {
+      const response = await fetch('/api/infer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input, model: selectedModel }),

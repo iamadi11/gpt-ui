@@ -1,24 +1,14 @@
 import { useState } from 'react'
 
-interface IntentGraph {
-  [sectionName: string]: {
-    goal: string
-    confidence: number
-    description?: string
-  }
-}
-
-interface AIResponse {
-  intentGraph: IntentGraph | null
-  rawInput: string
-  processingTime: number
-  modelUsed: string
-  rawOutput?: string
-  error?: string
-}
-
 interface OutputRendererProps {
-  aiResponse: AIResponse | null
+  aiResponse: {
+    intentGraph: any
+    rawInput: string
+    processingTime: number
+    modelUsed: string
+    rawOutput?: string
+    error?: string
+  } | null
 }
 
 // Simple renderer for AI intent output - shows raw AI response for POC
@@ -43,7 +33,7 @@ export function OutputRenderer({ aiResponse }: OutputRendererProps) {
         {aiResponse.intentGraph && (
           <div className="space-y-3">
             <h3 className="font-medium text-gray-800">UI Sections:</h3>
-            {Object.entries(aiResponse.intentGraph).map(([sectionName, section]) => (
+            {Object.entries(aiResponse.intentGraph).map(([sectionName, section]: [string, any]) => (
               <div key={sectionName} className="border border-gray-200 rounded p-3">
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-medium capitalize">{sectionName}</span>

@@ -18,6 +18,44 @@ export interface OllamaResponse {
   model: string
 }
 
+// Pull/install a model from Ollama
+export async function pullModel(model: string, endpoint?: string): Promise<void> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), OLLAMA_CONFIG.modelPullTimeoutMs)
+
+  try {
+    const pullEndpoint = endpoint ? endpoint.replace('/api/generate', '/api/pull') : 'http://localhost:11434/api/pull'
+
+    const response = await fetch(pullEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: model,
+        stream: false,
+      }),
+      signal: controller.signal,
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`Failed to pull model ${model}: ${response.status} ${response.statusText}\n${errorText}`)
+    }
+
+    // Wait for the response to complete (model installation)
+    await response.json()
+  } catch (error) {
+    clearTimeout(timeoutId)
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Model pull timed out after ${OLLAMA_CONFIG.modelPullTimeoutMs}ms`)
+    }
+    throw error
+  }
+}
+
 // Call Ollama with strict memory limits
 // Memory usage stays under 2GB total for model + context + overhead
 export async function callOllama(model: string, prompt: string, endpoint?: string): Promise<OllamaResponse> {
@@ -48,6 +86,22 @@ export async function callOllama(model: string, prompt: string, endpoint?: strin
 
     if (!response.ok) {
       const errorText = await response.text()
+
+      // Check if the model is not found and attempt to install it
+      if (response.status === 404 || errorText.toLowerCase().includes('model not found') || errorText.toLowerCase().includes('no such model')) {
+        console.log(`Model "${model}" not found. Attempting to install...`)
+
+        try {
+          await pullModel(model, endpoint)
+          console.log(`Model "${model}" installed successfully. Retrying request...`)
+
+          // Retry the original request after installation
+          return await callOllama(model, prompt, endpoint)
+        } catch (pullError) {
+          throw new Error(`Model "${model}" not found and installation failed: ${pullError instanceof Error ? pullError.message : 'Unknown error'}`)
+        }
+      }
+
       throw new Error(`Ollama API error: ${response.status} ${response.statusText}\n${errorText}`)
     }
 

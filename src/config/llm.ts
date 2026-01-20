@@ -79,6 +79,9 @@ export const OLLAMA_CONFIG = {
   // Balances responsiveness with complex queries
   timeoutMs: 3 * 60 * 1000,
 
+  // Timeout for model installation - 5 minutes max for downloading models
+  modelPullTimeoutMs: 5 * 60 * 1000,
+
   // Temperature for consistent outputs
   // Low temperature = more predictable UI decisions
   temperature: 0.3

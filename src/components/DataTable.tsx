@@ -1,37 +1,56 @@
 interface DataTableProps {
   content: any
-  affordance: string
+  goal: string
 }
 
-export function DataTable({ content, affordance }: DataTableProps) {
-  // Handle different data formats
+export function DataTable({ content, goal }: DataTableProps) {
+  // Parse content and prepare data based on goal
   let data: any[] = []
   let headers: string[] = []
 
-  if (Array.isArray(content)) {
-    data = content
-    if (data.length > 0 && typeof data[0] === 'object') {
-      headers = Object.keys(data[0])
+  try {
+    const parsed = typeof content === 'string' ? JSON.parse(content) : content
+
+    if (goal === 'compare') {
+      // For comparison, expect array of comparable items
+      if (Array.isArray(parsed)) {
+        data = parsed
+        if (data.length > 0 && typeof data[0] === 'object') {
+          headers = Object.keys(data[0])
+        }
+      }
+    } else if (goal === 'list') {
+      // For listing, show data in tabular format
+      if (Array.isArray(parsed)) {
+        data = parsed
+        if (data.length > 0 && typeof data[0] === 'object') {
+          headers = Object.keys(data[0])
+        }
+      } else if (typeof parsed === 'object') {
+        // Convert object to array for tabular display
+        data = Object.entries(parsed).map(([key, value]) => ({ key, value }))
+        headers = ['Property', 'Value']
+      }
     }
-  } else if (typeof content === 'object') {
-    // Convert object to array of key-value pairs
-    data = Object.entries(content).map(([key, value]) => ({ key, value }))
-    headers = ['key', 'value']
+  } catch {
+    // If parsing fails, show as simple table
+    data = [{ content: content }]
+    headers = ['Content']
   }
 
   if (data.length === 0) {
-    return <div className="text-gray-500">No data to display</div>
+    return <div className="text-gray-500">No tabular data to display</div>
   }
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
+      <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
         <thead className="bg-gray-50">
           <tr>
             {headers.map((header, index) => (
               <th
                 key={index}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b"
               >
                 {header}
               </th>
@@ -39,10 +58,10 @@ export function DataTable({ content, affordance }: DataTableProps) {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {data.slice(0, 10).map((row, rowIndex) => (
-            <tr key={rowIndex}>
+          {data.slice(0, 20).map((row, rowIndex) => (
+            <tr key={rowIndex} className="hover:bg-gray-50">
               {headers.map((header, colIndex) => (
-                <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td key={colIndex} className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border-r border-gray-100 last:border-r-0">
                   {typeof row[header] === 'object'
                     ? JSON.stringify(row[header])
                     : String(row[header] || '')}
@@ -52,9 +71,9 @@ export function DataTable({ content, affordance }: DataTableProps) {
           ))}
         </tbody>
       </table>
-      {data.length > 10 && (
+      {data.length > 20 && (
         <div className="text-sm text-gray-500 mt-2">
-          Showing first 10 of {data.length} items
+          Showing first 20 of {data.length} items
         </div>
       )}
     </div>

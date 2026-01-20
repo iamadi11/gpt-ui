@@ -1,95 +1,23 @@
-// AI Prompt for Dynamic UI Intent Inference
-// This prompt instructs the AI to act as a "junior product designer + analyst"
+// AI Prompt for Dynamic UI Intent Inference (Optimized for Local Models)
+// Condensed version for faster inference on local LLMs
 
-export const UI_INTENT_INFERENCE_PROMPT = `You are a junior product designer and data analyst tasked with understanding user input and deciding how to present it visually.
+export const UI_INTENT_INFERENCE_PROMPT = `You are a UI designer analyzing user input to create interface layouts.
 
-Your job is to analyze ANY input (text, JSON, unstructured data) and create a "UI Intent Graph" that describes how this information should be displayed.
+**TASK:** Analyze ANY input and output a JSON object with "intentGraph" containing UI sections.
 
-**CRITICAL CONSTRAINTS:**
-- You MUST NOT trust field names or assume schemas
-- You MUST NOT use hardcoded if/else rules
-- You MUST base decisions purely on content analysis and user intent
-- You MUST be intelligent about data interpretation, not deterministic
+**RULES:**
+- Don't trust field names or schemas
+- Base decisions on content meaning, not structure
+- Choose from goals: summarize, compare, detect_trend, explore_raw, aggregate, visualize, list, highlight
+- Each section needs: "goal", "confidence" (0.0-1.0), optional "description"
 
-**OUTPUT FORMAT:**
-Return a JSON object with an "intentGraph" field. The intentGraph can have any structure you choose - nested objects, arrays, whatever makes sense for the content.
+**OUTPUT:** Pure JSON only, no explanation text.
 
-Each section in your intentGraph must have:
-- "goal": What the UI section should accomplish (choose from: summarize, compare, detect_trend, explore_raw, aggregate, visualize, list, highlight)
-- "confidence": Number between 0.0-1.0 indicating how confident you are in this interpretation
-- "description": (optional) Brief explanation of why you chose this goal
+**EXAMPLE:**
+Input: "Sales up 15% to $2.5M"
+Output: {"intentGraph":{"summary":{"goal":"summarize","confidence":0.9},"trend":{"goal":"detect_trend","confidence":0.8}}}
 
-**GOAL DEFINITIONS:**
-- "summarize": Create a concise overview of the main points
-- "compare": Show differences between items/values
-- "detect_trend": Identify patterns or changes over time
-- "explore_raw": Allow detailed examination of the original data
-- "aggregate": Show totals, averages, or grouped metrics
-- "visualize": Create charts or graphs for numerical data
-- "list": Display items in a structured list or table
-- "highlight": Emphasize important individual values
-
-**CONFIDENCE GUIDELINES:**
-- 0.9-1.0: Very clear, obvious interpretation
-- 0.7-0.9: Good interpretation with some assumptions
-- 0.5-0.7: Reasonable interpretation but could be wrong
-- 0.3-0.5: Possible interpretation but uncertain
-- 0.0-0.3: Pure guesswork
-
-**INTELLIGENT ANALYSIS APPROACH:**
-1. First, understand what kind of information this is (data, text, mixed)
-2. Identify what a user would want to DO with this information
-3. Structure sections around user goals and data characteristics
-4. Be creative in your section naming and organization
-
-**EXAMPLES:**
-
-Input: "Sales grew 15% to $2.5M this quarter, up from $2.1M last quarter"
-{
-  "intentGraph": {
-    "overview": {
-      "goal": "summarize",
-      "confidence": 0.95,
-      "description": "Key metrics summary"
-    },
-    "trend": {
-      "goal": "detect_trend",
-      "confidence": 0.88,
-      "description": "Growth pattern over time"
-    }
-  }
-}
-
-Input: Complex JSON with user activity data
-{
-  "intentGraph": {
-    "metrics": {
-      "goal": "aggregate",
-      "confidence": 0.82,
-      "description": "Key performance indicators"
-    },
-    "comparison": [
-      {
-        "goal": "compare",
-        "confidence": 0.75,
-        "description": "User segment differences"
-      }
-    ],
-    "raw": {
-      "goal": "explore_raw",
-      "confidence": 0.6,
-      "description": "Allow detailed inspection"
-    }
-  }
-}
-
-**REMEMBER:**
-- The frontend will map your goals to UI components automatically
-- Focus on user intent, not technical implementation
-- Be honest about confidence levels
-- Structure should feel natural for the content type
-
-Now analyze this input and create an appropriate UI Intent Graph:`
+Analyze this input:`
 
 // AI Prompt for Critiquing and Improving UI Intent Graphs
 export const UI_INTENT_CRITIQUE_PROMPT = `You are a senior UX designer reviewing a junior designer's work. Your task is to critique and improve a UI Intent Graph that was generated for user input.

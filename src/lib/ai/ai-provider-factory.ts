@@ -68,9 +68,27 @@ export class AIProviderFactory {
 
   /**
    * Get the best available provider based on environment
+   * Prioritizes local LLM (Ollama) for cost-free, offline operation
    */
-  static getBestAvailableProvider(): { provider: AIProvider; type: AIProviderType } {
-    // Try OpenAI first
+  static async getBestAvailableProvider(): Promise<{ provider: AIProvider; type: AIProviderType }> {
+    // For local LLM, we can try to use Ollama directly without explicit env vars
+    const localEndpoint = process.env.LOCAL_LLM_ENDPOINT || 'http://localhost:11434/api/generate'
+    const localModel = process.env.LOCAL_LLM_MODEL || 'qwen2.5:7b-instruct'
+
+    try {
+      const localProvider = new LocalLLMProvider(localEndpoint, localModel)
+      // Check if Ollama is running and available
+      if (await localProvider.isAvailable()) {
+        return {
+          provider: localProvider,
+          type: AIProviderType.LOCAL_LLM
+        }
+      }
+    } catch (error) {
+      console.warn('Local LLM check failed:', error)
+    }
+
+    // Try OpenAI second
     if (process.env.OPENAI_API_KEY) {
       const model = process.env.OPENAI_MODEL || 'gpt-4'
       return {
@@ -79,21 +97,12 @@ export class AIProviderFactory {
       }
     }
 
-    // Try Anthropic second
+    // Try Anthropic third
     if (process.env.ANTHROPIC_API_KEY) {
       const model = process.env.ANTHROPIC_MODEL || 'claude-3-sonnet-20240229'
       return {
         provider: new AnthropicProvider(process.env.ANTHROPIC_API_KEY, model),
         type: AIProviderType.ANTHROPIC
-      }
-    }
-
-    // Try Local LLM third
-    if (process.env.LOCAL_LLM_ENDPOINT) {
-      const model = process.env.LOCAL_LLM_MODEL
-      return {
-        provider: new LocalLLMProvider(process.env.LOCAL_LLM_ENDPOINT, model),
-        type: AIProviderType.LOCAL_LLM
       }
     }
 

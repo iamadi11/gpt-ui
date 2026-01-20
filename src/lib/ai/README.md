@@ -1,6 +1,64 @@
 # AI Provider Abstraction Layer
 
-This module provides a clean abstraction over different AI providers, making it easy to switch between OpenAI, Anthropic, local LLMs, and mock implementations for testing.
+This module provides a clean abstraction over different AI providers, making it easy to switch between OpenAI, Anthropic, local LLMs (Ollama), and mock implementations for testing.
+
+## 🚀 Quick Setup for Local AI (Recommended)
+
+For the **True Dynamic UI POC**, we recommend using Ollama with a local model for cost-free, offline operation:
+
+### 1. Install Ollama
+
+**macOS:**
+```bash
+brew install ollama
+```
+
+**Linux:**
+```bash
+curl -fsSL https://ollama.ai/install.sh | sh
+```
+
+**Windows:**
+Download from [ollama.ai](https://ollama.ai/download)
+
+### 2. Start Ollama Service
+
+```bash
+# Start Ollama in the background
+ollama serve
+```
+
+### 3. Pull the Recommended Model
+
+```bash
+# Pull the primary model (recommended)
+ollama pull qwen2.5:7b-instruct
+
+# Alternative models (if you have limited RAM):
+ollama pull phi3:mini
+# or
+ollama pull llama3.1:8b-instruct
+```
+
+### 4. Test Your Setup
+
+```bash
+# Verify the model is available
+curl http://localhost:11434/api/tags
+
+# Test a simple generation
+curl -X POST http://localhost:11434/api/generate -d '{"model": "qwen2.5:7b-instruct", "prompt": "Hello!"}'
+```
+
+### 5. Run Your Next.js App
+
+The system will **automatically detect** and use Ollama if available:
+
+```bash
+npm run dev
+```
+
+No environment variables needed! The system prioritizes local AI for cost-free operation.
 
 ## Overview
 
@@ -11,13 +69,14 @@ The AI abstraction layer consists of:
 - **Provider Implementations**: Concrete implementations for different AI services
 - **Configuration System**: Environment-based configuration for easy deployment
 
-## Quick Start
+## Quick Start (Programmatic)
 
 ```typescript
 import { AIProviderFactory } from '@/lib/ai'
 
 // Get the best available provider (auto-detects from environment)
-const { provider, type } = AIProviderFactory.getBestAvailableProvider()
+// Prioritizes Ollama for local, cost-free operation
+const { provider, type } = await AIProviderFactory.getBestAvailableProvider()
 
 // Use the provider
 const intentGraph = await provider.inferIntent("Sales grew 15% this quarter")
@@ -30,35 +89,37 @@ const critique = await provider.critiqueIntentGraph(input, intentGraph)
 
 The system automatically detects available providers from environment variables:
 
-#### OpenAI
+#### Local LLM (Ollama - Recommended)
+```bash
+# No env vars needed! Auto-detects http://localhost:11434/api/generate
+# Override with:
+LOCAL_LLM_ENDPOINT=http://localhost:11434/api/generate
+OLLAMA_MODEL=qwen2.5:7b-instruct  # or phi3:mini for low RAM
+```
+
+#### OpenAI (Cloud)
 ```bash
 OPENAI_API_KEY=your_api_key_here
 OPENAI_MODEL=gpt-4  # optional, defaults to gpt-4
 ```
 
-#### Anthropic
+#### Anthropic (Cloud)
 ```bash
 ANTHROPIC_API_KEY=your_api_key_here
-ANTHROPIC_MODEL=claude-3-sonnet-20240229  # optional, defaults to claude-3-sonnet-20240229
-```
-
-#### Local LLM
-```bash
-LOCAL_LLM_ENDPOINT=http://localhost:11434/api/generate  # Ollama-style endpoint
-LOCAL_LLM_MODEL=llama2  # optional
+ANTHROPIC_MODEL=claude-3-sonnet-20240229  # optional
 ```
 
 #### Explicit Provider Selection
 ```bash
-AI_PROVIDER=openai  # or 'anthropic', 'local-llm', 'mock'
+AI_PROVIDER=local-llm  # or 'openai', 'anthropic', 'mock'
 ```
 
 ### Priority Order
 
 When no explicit provider is selected, the system tries providers in this order:
-1. OpenAI (if `OPENAI_API_KEY` exists)
-2. Anthropic (if `ANTHROPIC_API_KEY` exists)
-3. Local LLM (if `LOCAL_LLM_ENDPOINT` exists)
+1. **Local LLM (Ollama)** - Cost-free, offline (recommended for POC)
+2. OpenAI (if `OPENAI_API_KEY` exists)
+3. Anthropic (if `ANTHROPIC_API_KEY` exists)
 4. Mock (fallback)
 
 ## Provider Interface
@@ -101,10 +162,103 @@ const provider = new MockProvider()
 // All methods work without external dependencies
 ```
 
+## Example Usage
+
+### API Request/Response
+
+**Request:**
+```bash
+curl -X POST http://localhost:3000/api/infer-intent \
+  -H "Content-Type: application/json" \
+  -d '{"input": "Sales grew 15% to $2.5M this quarter, up from $2.1M last quarter"}'
+```
+
+**Response:**
+```json
+{
+  "intentGraph": {
+    "overview": {
+      "goal": "summarize",
+      "confidence": 0.95,
+      "description": "Key metrics summary"
+    },
+    "trend": {
+      "goal": "detect_trend",
+      "confidence": 0.88,
+      "description": "Growth pattern over time"
+    },
+    "chart": {
+      "goal": "visualize",
+      "confidence": 0.75,
+      "description": "Visual representation of growth"
+    }
+  },
+  "rawInput": "Sales grew 15% to $2.5M this quarter, up from $2.1M last quarter",
+  "processingTime": 1250,
+  "modelUsed": "qwen2.5:7b-instruct",
+  "fallbackUsed": false
+}
+```
+
+### AI Prompt Engineering
+
+The system uses carefully crafted prompts optimized for small local models. Here's what the AI sees:
+
+**Input Processing:**
+```
+You are a junior product designer and data analyst tasked with understanding user input...
+
+CRITICAL CONSTRAINTS:
+- You MUST NOT trust field names or assume schemas
+- You MUST NOT use hardcoded if/else rules
+- You MUST base decisions purely on content analysis and user intent
+
+Input: "Sales grew 15% to $2.5M this quarter, up from $2.1M last quarter"
+```
+
+**AI Response (JSON only):**
+```json
+{
+  "intentGraph": {
+    "overview": {
+      "goal": "summarize",
+      "confidence": 0.95
+    },
+    "trend": {
+      "goal": "detect_trend",
+      "confidence": 0.88
+    }
+  }
+}
+```
+
+### Debugging Logs
+
+In development mode, the system logs:
+- Raw user input
+- AI prompt sent to model
+- Raw AI response
+- Parsed intent graph
+- Processing time and model used
+
+## Architecture Notes
+
+### Philosophy
+- **Intelligence over determinism**: AI makes creative UI decisions, not rule-based systems
+- **Explainability over correctness**: Confidence scores show AI uncertainty
+- **Graceful degradation over strict validation**: Soft JSON parsing, fallback to raw view
+
+### Technical Decisions
+- **Local-first**: Ollama prioritized for cost-free, offline operation
+- **Schema-light**: No strict JSON schemas - AI decides structure
+- **Soft parsing**: Extracts JSON from natural language responses
+- **Fallback chains**: Multiple providers tried automatically
+- **Minimal abstraction**: `lib/llm.ts` is a thin wrapper over Ollama API
+
 ## Future Enhancements
 
-- **Local LLM Support**: The `LocalLLMProvider` is ready for implementation with popular local LLM servers (Ollama, LM Studio, etc.)
-- **Provider Switching**: Runtime provider switching for A/B testing
-- **Caching**: Response caching to reduce API calls
-- **Rate Limiting**: Built-in rate limiting for API providers
-- **Fallback Chains**: Automatic fallback to alternative providers on failure
+- **Model switching**: Runtime model selection for different tasks
+- **Fine-tuning**: Custom models trained on UI design patterns
+- **Caching**: Response caching to reduce inference time
+- **Streaming**: Real-time UI updates as AI generates intent graph
+- **Multi-model consensus**: Multiple models voting on UI decisions

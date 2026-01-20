@@ -8,7 +8,7 @@ async function inferIntentWithAI(input: string): Promise<AIIntentResponse> {
 
   try {
     // Get the best available AI provider
-    const { provider, type } = AIProviderFactory.getBestAvailableProvider()
+    const { provider, type } = await AIProviderFactory.getBestAvailableProvider()
 
     // Step 1: Generate initial intent graph
     const initialIntentGraph = await provider.inferIntent(input)
@@ -67,7 +67,7 @@ async function modifyIntentGraph(modification: IntentGraphModification): Promise
 
   try {
     // Get the best available AI provider
-    const { provider, type } = AIProviderFactory.getBestAvailableProvider()
+    const { provider, type } = await AIProviderFactory.getBestAvailableProvider()
 
     // Use AI provider for modification
     const modifiedResult = await provider.modifyIntentGraph(modification)

@@ -1,125 +1,67 @@
-// Local LLM Client for Ollama
-// Small abstraction layer for communicating with Ollama's OpenAI-compatible API
+// Thin Ollama Client for POC
+//
+// WHY THIS EXISTS:
+// - No abstractions - direct API calls keep things simple and debuggable
+// - Strict memory limits prevent OOM crashes on consumer hardware
+// - Synchronous responses - no streaming to avoid complexity
+//
+// MEMORY TRADEOFFS:
+// - num_ctx=2048: Limits context but keeps memory usage predictable
+// - num_predict=256: Constrains output but ensures fast responses
+// - No batching: Simpler but less efficient
+// - Single timeout: Prevents hanging but may fail on slow models
 
-export interface LLMConfig {
-  endpoint: string
-  model: string
-  temperature?: number
-  maxTokens?: number
-  timeout?: number // Timeout in milliseconds
-}
+import { MEMORY_LIMITS, OLLAMA_CONFIG } from '@/config/llm'
 
-export interface LLMResponse {
+export interface OllamaResponse {
   content: string
   model: string
-  usage?: {
-    promptTokens?: number
-    completionTokens?: number
-    totalTokens?: number
-  }
 }
 
-export class OllamaClient {
-  private config: LLMConfig
+// Call Ollama with strict memory limits
+// Memory usage stays under 2GB total for model + context + overhead
+export async function callOllama(model: string, prompt: string, endpoint?: string): Promise<OllamaResponse> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), OLLAMA_CONFIG.timeoutMs)
 
-  constructor(config: LLMConfig) {
-    this.config = config
-  }
-
-  /**
-   * Send a prompt to the local LLM and get a response
-   */
-  async generate(prompt: string): Promise<LLMResponse> {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), this.config.timeout || 600000) // 10 minutes default
-
-    try {
-      const response = await fetch(this.config.endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+  try {
+    const response = await fetch(endpoint || OLLAMA_CONFIG.defaultEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        prompt,
+        stream: false,
+        options: {
+          temperature: OLLAMA_CONFIG.temperature,
+          // Strict memory limits - these values keep RAM usage under 2GB
+          num_ctx: MEMORY_LIMITS.maxContextTokens,    // 2048 tokens context
+          num_predict: MEMORY_LIMITS.maxOutputTokens, // 256 tokens max output
         },
-        body: JSON.stringify({
-          model: this.config.model,
-          prompt: prompt,
-          stream: false,
-          options: {
-            temperature: this.config.temperature || 0.3,
-            num_predict: this.config.maxTokens || 1024,
-            num_ctx: 2048, // Context window size
-            num_thread: -1, // Use all available threads
-            num_gpu: -1, // Use GPU if available
-          },
-        }),
-        signal: controller.signal,
-      })
+      }),
+      signal: controller.signal,
+    })
 
-      clearTimeout(timeoutId)
+    clearTimeout(timeoutId)
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Ollama API error: ${response.status} ${response.statusText}\n${errorText}`)
-      }
-
-      const data = await response.json()
-
-      return {
-        content: data.response || '',
-        model: this.config.model,
-        usage: data.usage ? {
-          promptTokens: data.usage.prompt_eval_count,
-          completionTokens: data.usage.eval_count,
-          totalTokens: (data.usage.prompt_eval_count || 0) + (data.usage.eval_count || 0),
-        } : undefined,
-      }
-    } catch (error) {
-      clearTimeout(timeoutId)
-      if (error.name === 'AbortError') {
-        throw new Error(`Ollama request timed out after ${this.config.timeout || 600000}ms`)
-      }
-      throw error
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`Ollama API error: ${response.status} ${response.statusText}\n${errorText}`)
     }
-  }
 
-  /**
-   * Check if Ollama is running and the model is available
-   */
-  async checkHealth(): Promise<boolean> {
-    try {
-      const response = await fetch(`${this.config.endpoint.replace('/api/generate', '/api/tags')}`)
-      return response.ok
-    } catch {
-      return false
+    const data = await response.json()
+
+    return {
+      content: data.response || '',
+      model,
     }
+  } catch (error) {
+    clearTimeout(timeoutId)
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Ollama request timed out after ${OLLAMA_CONFIG.timeoutMs}ms`)
+    }
+    throw error
   }
-
-  /**
-   * Get the current model name
-   */
-  getModelName(): string {
-    return this.config.model
-  }
-}
-
-// Default configuration for the dynamic UI POC
-export const DEFAULT_OLLAMA_CONFIG: LLMConfig = {
-  endpoint: 'http://localhost:11434/api/generate',
-  model: process.env.OLLAMA_MODEL || 'qwen2.5:7b-instruct',
-  temperature: 0.3, // Lower for more consistent responses
-  maxTokens: 1024, // Reduced for faster responses
-  timeout: 3 * 60 * 1000, // 3 minutes - faster timeout
-}
-
-// Factory function to create configured Ollama client
-export function createOllamaClient(config: Partial<LLMConfig> = {}): OllamaClient {
-  return new OllamaClient({
-    ...DEFAULT_OLLAMA_CONFIG,
-    ...config,
-  })
-}
-
-// Convenience function for one-off generations
-export async function generateWithOllama(prompt: string, config?: Partial<LLMConfig>): Promise<LLMResponse> {
-  const client = createOllamaClient(config)
-  return client.generate(prompt)
 }

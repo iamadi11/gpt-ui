@@ -60,6 +60,21 @@ export function getAIConfigFromEnv(): AIProviderConfig {
     }
   }
 
+  if (explicitProvider === 'cloud-llm') {
+    const apiKey = process.env.CLOUD_LLM_API_KEY
+    if (!apiKey) {
+      throw new Error('CLOUD_LLM_API_KEY is required when AI_PROVIDER=cloud-llm')
+    }
+    return {
+      type: AIProviderType.CLOUD_LLM,
+      cloudLLM: {
+        apiKey,
+        baseURL: process.env.CLOUD_LLM_BASE_URL,
+        model: process.env.CLOUD_LLM_MODEL
+      }
+    }
+  }
+
   if (explicitProvider === 'mock') {
     return {
       type: AIProviderType.MOCK
@@ -92,6 +107,12 @@ export function validateAIConfig(config: AIProviderConfig): { valid: boolean; er
     case AIProviderType.LOCAL_LLM:
       if (!config.localLLM?.endpoint) {
         errors.push('Local LLM endpoint is required')
+      }
+      break
+
+    case AIProviderType.CLOUD_LLM:
+      if (!config.cloudLLM?.apiKey) {
+        errors.push('Cloud LLM API key is required')
       }
       break
 

@@ -37,6 +37,7 @@ export enum AIProviderType {
   OPENAI = 'openai',
   ANTHROPIC = 'anthropic',
   LOCAL_LLM = 'local-llm',
+  CLOUD_LLM = 'cloud-llm',
   MOCK = 'mock'
 }
 
@@ -53,6 +54,11 @@ export interface AIProviderConfig {
   }
   localLLM?: {
     endpoint: string
+    model?: string
+  }
+  cloudLLM?: {
+    apiKey: string
+    baseURL?: string
     model?: string
   }
 }

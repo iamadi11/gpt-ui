@@ -2,6 +2,7 @@ import { AIProvider, AIProviderType, AIProviderConfig } from './ai-provider'
 import { OpenAIProvider } from './providers/openai-provider'
 import { AnthropicProvider } from './providers/anthropic-provider'
 import { LocalLLMProvider } from './providers/local-llm-provider'
+import { CloudLLMProvider } from './providers/cloud-llm-provider'
 import { MockProvider } from './providers/mock-provider'
 
 export class AIProviderFactory {
@@ -27,6 +28,16 @@ export class AIProviderFactory {
           throw new Error('Local LLM endpoint is required')
         }
         return new LocalLLMProvider(config.localLLM.endpoint, config.localLLM.model)
+
+      case AIProviderType.CLOUD_LLM:
+        if (!config.cloudLLM?.apiKey) {
+          throw new Error('Cloud LLM API key is required')
+        }
+        return new CloudLLMProvider(
+          config.cloudLLM.apiKey,
+          config.cloudLLM.baseURL,
+          config.cloudLLM.model
+        )
 
       case AIProviderType.MOCK:
         return new MockProvider()
@@ -60,6 +71,14 @@ export class AIProviderFactory {
     if (localEndpoint) {
       const model = process.env.LOCAL_LLM_MODEL
       return new LocalLLMProvider(localEndpoint, model)
+    }
+
+    // Check for Cloud LLM (OpenAI-compatible)
+    const cloudApiKey = process.env.CLOUD_LLM_API_KEY
+    if (cloudApiKey) {
+      const baseURL = process.env.CLOUD_LLM_BASE_URL || 'https://api.openai.com/v1'
+      const model = process.env.CLOUD_LLM_MODEL || 'gpt-4o-mini'
+      return new CloudLLMProvider(cloudApiKey, baseURL, model)
     }
 
     // Default to mock provider
@@ -97,7 +116,17 @@ export class AIProviderFactory {
       }
     }
 
-    // Try Anthropic third
+    // Try Cloud LLM (OpenAI-compatible) third
+    if (process.env.CLOUD_LLM_API_KEY) {
+      const baseURL = process.env.CLOUD_LLM_BASE_URL || 'https://api.openai.com/v1'
+      const model = process.env.CLOUD_LLM_MODEL || 'gpt-4o-mini'
+      return {
+        provider: new CloudLLMProvider(process.env.CLOUD_LLM_API_KEY, baseURL, model),
+        type: AIProviderType.CLOUD_LLM
+      }
+    }
+
+    // Try Anthropic fourth
     if (process.env.ANTHROPIC_API_KEY) {
       const model = process.env.ANTHROPIC_MODEL || 'claude-3-sonnet-20240229'
       return {

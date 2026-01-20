@@ -44,8 +44,11 @@ export class OllamaClient {
           prompt: prompt,
           stream: false,
           options: {
-            temperature: this.config.temperature || 0.7,
+            temperature: this.config.temperature || 0.3,
             num_predict: this.config.maxTokens || 1024,
+            num_ctx: 2048, // Context window size
+            num_thread: -1, // Use all available threads
+            num_gpu: -1, // Use GPU if available
           },
         }),
         signal: controller.signal,
@@ -102,9 +105,9 @@ export class OllamaClient {
 export const DEFAULT_OLLAMA_CONFIG: LLMConfig = {
   endpoint: 'http://localhost:11434/api/generate',
   model: process.env.OLLAMA_MODEL || 'qwen2.5:7b-instruct',
-  temperature: 0.7,
-  maxTokens: 2048,
-  timeout: 10 * 60 * 1000, // 10 minutes for local LLM inference
+  temperature: 0.3, // Lower for more consistent responses
+  maxTokens: 1024, // Reduced for faster responses
+  timeout: 3 * 60 * 1000, // 3 minutes - faster timeout
 }
 
 // Factory function to create configured Ollama client

@@ -1,20 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { callOllama } from '@/lib/llm'
 import { DEFAULT_MODEL } from '@/config/llm'
+import { UI_GENERATION_PROMPT } from '@/lib/prompts'
+import { getCachedResult, setCachedResult } from '@/lib/cache'
+import { UIDescription } from '@/components/Renderer'
 
-// Simple prompt for POC - optimized for small models and fast responses
-const UI_INTENT_PROMPT = `Analyze this input and create a simple UI layout. Output JSON only.
+// API Route: AI UI Generation Service
+//
+// RESPONSIBILITIES:
+// - Check cache before calling expensive AI
+// - Call local LLM with UI generation prompt
+// - Parse AI response into UIDescription format
+// - Cache successful results
+// - Return UI description for frontend rendering
+//
+// CACHE BOUNDARIES:
+// - Cache key = hash(input + model)
+// - Cache hit = return cached UI description
+// - Cache miss = call AI, then cache result
+// - No cache invalidation - clears on reload
 
-Rules:
-- Choose goals: summarize, visualize, list, explore_raw
-- Each section needs: goal, confidence (0.0-1.0), description
-- Keep it simple - 1-3 sections max
-
-Example: {"summary":{"goal":"summarize","confidence":0.9,"description":"Key points"},"data":{"goal":"list","confidence":0.8,"description":"Raw values"}}
-
-Input:`
-
-// Simple API that calls Ollama directly - no abstractions, no fallbacks
 export async function POST(request: NextRequest) {
   try {
     const { input, model } = await request.json()
@@ -29,32 +34,107 @@ export async function POST(request: NextRequest) {
     const startTime = Date.now()
     const selectedModel = model || DEFAULT_MODEL.name
 
-    // Call Ollama directly with simple prompt
-    const prompt = `${UI_INTENT_PROMPT} ${input}`
+    // CACHE CHECK: Avoid expensive AI calls for repeated inputs
+    const cachedResult = getCachedResult(input, selectedModel)
+    if (cachedResult) {
+      return NextResponse.json({
+        uiDescription: cachedResult.uiDescription,
+        rawInput: input,
+        processingTime: 0, // Cached result
+        modelUsed: selectedModel,
+        cached: true,
+        rawOutput: null
+      })
+    }
+
+    // AI CALL: Generate UI description using local LLM
+    const prompt = `${UI_GENERATION_PROMPT}\n\n${input}`
     const response = await callOllama(selectedModel, prompt)
 
-    // Parse AI response as JSON
-    let intentGraph
+    // PARSE AI RESPONSE: Robust JSON extraction and validation
+    let uiDescription: UIDescription | null = null
+    let parseError: string | null = null
+
     try {
-      const jsonMatch = response.content.match(/\{[\s\S]*\}/)
-      intentGraph = jsonMatch ? JSON.parse(jsonMatch[0]) : null
-    } catch (parseError) {
-      // Fallback on parse error - show raw input
-      intentGraph = {
-        error: {
-          goal: 'explore_raw',
-          confidence: 0.1,
-          description: 'AI parsing failed, showing raw input'
+      let jsonContent = response.content
+
+      // Step 1: Strip markdown code blocks if present
+      jsonContent = jsonContent.replace(/```(?:json)?\s*\n?/g, '').replace(/\n?```\s*$/g, '')
+
+      // Step 2: Find JSON object (most complete match)
+      const jsonMatches = jsonContent.match(/\{[\s\S]*\}/g)
+      if (!jsonMatches || jsonMatches.length === 0) {
+        parseError = 'No JSON object found in AI response'
+      } else {
+        // Try each JSON match, starting with the longest/most complete
+        const sortedMatches = jsonMatches.sort((a, b) => b.length - a.length)
+
+        for (const jsonMatch of sortedMatches) {
+          try {
+            // Step 3: Fix common AI mistakes
+            let cleanedJson = jsonMatch
+
+            // Fix malformed numbers (like 00.98 -> 0.98)
+            cleanedJson = cleanedJson.replace(/:\s*0+(\d)/g, ': $1')
+
+            // Fix trailing commas
+            cleanedJson = cleanedJson.replace(/,(\s*[}\]])/g, '$1')
+
+            const parsed = JSON.parse(cleanedJson)
+
+            // Step 4: Validate structure
+            if (typeof parsed.confidence === 'number' &&
+                typeof parsed.layout === 'string' &&
+                Array.isArray(parsed.sections)) {
+
+              // Validate sections
+              const validSections = parsed.sections.filter((section: any) =>
+                typeof section.title === 'string' &&
+                typeof section.intent === 'string' &&
+                typeof section.ui === 'string' &&
+                typeof section.confidence === 'number' &&
+                ['text', 'card', 'table', 'chart'].includes(section.ui)
+              )
+
+              if (validSections.length > 0) {
+                uiDescription = {
+                  ...parsed,
+                  sections: validSections
+                } as UIDescription
+                break // Success - use this parse
+              } else {
+                parseError = 'No valid sections found in JSON'
+              }
+            } else {
+              parseError = 'Invalid JSON structure - missing required fields'
+            }
+          } catch (parseAttemptError) {
+            // Continue to next match
+            continue
+          }
+        }
+
+        if (!uiDescription) {
+          parseError = parseError || 'All JSON parsing attempts failed'
         }
       }
+    } catch (error) {
+      parseError = `JSON parsing setup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    }
+
+    // CACHE SUCCESSFUL RESULTS: Store valid UI descriptions
+    if (uiDescription) {
+      setCachedResult(input, selectedModel, uiDescription)
     }
 
     const result = {
-      intentGraph,
+      uiDescription,
       rawInput: input,
       processingTime: Date.now() - startTime,
       modelUsed: selectedModel,
-      rawOutput: response.content // Include raw AI output for debugging
+      cached: false,
+      rawOutput: response.content, // For debugging
+      parseError // Include parse errors for debugging
     }
 
     return NextResponse.json(result)
@@ -62,16 +142,11 @@ export async function POST(request: NextRequest) {
     console.error('Inference error:', error)
     return NextResponse.json(
       {
-        intentGraph: {
-          error: {
-            goal: 'explore_raw',
-            confidence: 0.0,
-            description: 'System error, showing raw input'
-          }
-        },
+        uiDescription: null,
         rawInput: '',
         processingTime: 0,
         modelUsed: 'error',
+        cached: false,
         rawOutput: '',
         error: error instanceof Error ? error.message : 'Unknown error'
       },

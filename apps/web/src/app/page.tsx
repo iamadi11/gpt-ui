@@ -1,52 +1,60 @@
 'use client'
 
-import { useState } from 'react'
-import { Renderer } from '@/components/Renderer'
-import { AVAILABLE_MODELS, DEFAULT_MODEL, getModelByName } from '@/config/llm'
-import { getCacheStats, clearCache } from '@/lib/cache'
-
-interface AIResponse {
-  uiDescription: any // UIDescription from AI
-  rawInput: string
-  processingTime: number
-  modelUsed: string
-  cached: boolean
-  rawOutput?: string
-  parseError?: string
-  error?: string
-}
+import { useState, useEffect } from 'react'
+import { UIRenderer, useUIRuntime } from '@gpt-ui/ui-runtime'
+import { LLMEngine, DEFAULT_ENGINE_OPTIONS, DEFAULT_OLLAMA_PROVIDER } from '@gpt-ui/llm-engine'
+import { initializeCache, getCacheStats, clearCache, DEFAULT_CACHE_CONFIG } from '@gpt-ui/cache'
+import type { UIInferenceRequest, UIInferenceResponse } from '@gpt-ui/schema'
 
 export default function Home() {
   const [input, setInput] = useState('')
-  const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL.name)
-  const [aiResponse, setAiResponse] = useState<AIResponse | null>(null)
+  const [selectedModel, setSelectedModel] = useState('phi3:mini')
+  const [aiResponse, setAiResponse] = useState<UIInferenceResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [showDebug, setShowDebug] = useState(false)
+  const [engine, setEngine] = useState<LLMEngine | null>(null)
+
+  const runtime = useUIRuntime({
+    density: 'normal',
+    enableValidation: true
+  })
+
+  // Initialize engine and cache on mount
+  useEffect(() => {
+    initializeCache(DEFAULT_CACHE_CONFIG)
+    const llmEngine = new LLMEngine(DEFAULT_ENGINE_OPTIONS)
+    setEngine(llmEngine)
+  }, [])
+
+  const availableModels = DEFAULT_OLLAMA_PROVIDER.capabilities.supportedModels
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim()) return
+    if (!input.trim() || !engine) return
 
     setLoading(true)
     try {
-      const response = await fetch('/api/infer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input, model: selectedModel }),
-      })
+      const request: UIInferenceRequest = {
+        input,
+        model: selectedModel,
+        config: {
+          temperature: 0.3,
+          maxTokens: 256,
+          timeout: 180000
+        }
+      }
 
-      const data: AIResponse = await response.json()
-      setAiResponse(data)
+      const response = await engine.inferUI(request)
+      setAiResponse(response)
     } catch (error) {
       console.error('Error:', error)
       // Fallback on error
-      const fallbackResponse: AIResponse = {
+      const fallbackResponse: UIInferenceResponse = {
         uiDescription: null,
         rawInput: input,
         processingTime: 0,
         modelUsed: 'error',
         cached: false,
-        rawOutput: '',
         error: error instanceof Error ? error.message : 'Unknown error'
       }
       setAiResponse(fallbackResponse)
@@ -60,7 +68,7 @@ export default function Home() {
     alert('Cache cleared')
   }
 
-  const currentModel = getModelByName(selectedModel)
+  const currentModel = availableModels.find(m => m.name === selectedModel)
   const cacheStats = getCacheStats()
 
   return (
@@ -91,14 +99,14 @@ export default function Home() {
                   onChange={(e) => setSelectedModel(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  {AVAILABLE_MODELS.map((model) => (
+                  {availableModels.map((model) => (
                     <option key={model.name} value={model.name}>
                       {model.displayName} - {model.memoryUsage}
                     </option>
                   ))}
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
-                  {!currentModel.recommended && '⚠️ May exceed 2GB memory limit'}
+                  {!currentModel?.recommended && '⚠️ May exceed 2GB memory limit'}
                 </p>
               </div>
 
@@ -141,10 +149,9 @@ export default function Home() {
 
         {aiResponse && (
           <div className="mb-6">
-            <Renderer
+            <UIRenderer
               uiDescription={aiResponse.uiDescription}
-              rawInput={aiResponse.rawInput}
-              error={aiResponse.error}
+              runtime={runtime}
             />
           </div>
         )}
@@ -168,15 +175,20 @@ export default function Home() {
               <div>Cache: <span className={aiResponse.cached ? 'text-green-400' : 'text-red-400'}>
                 {aiResponse.cached ? 'HIT' : 'MISS'}
               </span></div>
+              {aiResponse.metadata?.tokenUsage && (
+                <div>Tokens: <span className="text-purple-400">
+                  {aiResponse.metadata.tokenUsage.total} ({aiResponse.metadata.tokenUsage.prompt}p + {aiResponse.metadata.tokenUsage.completion}c)
+                </span></div>
+              )}
             </div>
 
             {showDebug && (
               <div className="mt-4 space-y-3">
-                {aiResponse.parseError && (
+                {aiResponse.error && (
                   <div>
-                    <div className="text-red-400">Parse Error:</div>
+                    <div className="text-red-400">Error:</div>
                     <div className="text-red-300 bg-red-900/20 p-2 rounded text-xs">
-                      {aiResponse.parseError}
+                      {aiResponse.error}
                     </div>
                   </div>
                 )}
@@ -196,6 +208,15 @@ export default function Home() {
                     {JSON.stringify(aiResponse.uiDescription, null, 2)}
                   </pre>
                 </div>
+
+                {aiResponse.metadata && (
+                  <div>
+                    <div className="text-cyan-400">Metadata:</div>
+                    <pre className="text-gray-300 bg-gray-800 p-2 rounded text-xs overflow-x-auto">
+                      {JSON.stringify(aiResponse.metadata, null, 2)}
+                    </pre>
+                  </div>
+                )}
               </div>
             )}
           </div>

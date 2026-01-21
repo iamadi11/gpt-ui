@@ -1,27 +1,30 @@
 {
-  "name": "gpt-ui",
-  "version": "0.1.0",
+  "name": "gpt-ui-monorepo",
+  "version": "1.0.0",
   "private": true,
+  "description": "AI-powered dynamic UI generation system",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "next": "14.0.4",
-    "react": "^18",
-    "react-dom": "^18"
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:admin": "cd apps/admin-dashboard && npm run dev",
+    "clean": "turbo run clean",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "type-check": "turbo run type-check",
+    "setup": "./scripts/setup.sh",
+    "test:system": "./scripts/test.sh",
+    "install:all": "npm install && ./scripts/setup.sh"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "autoprefixer": "^10.0.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.0.4",
-    "postcss": "^8",
-    "tailwindcss": "^3.3.0",
+    "turbo": "^1.10.0",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

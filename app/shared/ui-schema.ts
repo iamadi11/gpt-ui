@@ -46,7 +46,6 @@ export type UIGenerationResult = {
 };
 
 /**
- * Export types for use across the application
+ * Types are exported inline above for use across the application
  * These types define the contract boundary between AI and UI
  */
-export type { UIGenerationResult };

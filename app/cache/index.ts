@@ -173,4 +173,5 @@ function createCache(config: CacheConfig): UICache {
 }
 
 // Export the cache interface and factory
-export { UICache, createCache };
+export type { UICache };
+export { createCache };

@@ -1,3 +1,5 @@
+import { CacheConfig } from '../cache/types';
+
 /**
  * Strict TypeScript types for the MCP server
  * Enforces type safety and prevents runtime errors

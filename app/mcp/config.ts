@@ -43,6 +43,9 @@ const DEFAULT_CONFIG: MCPConfig = {
   cache: CACHE_DEFAULTS,
 };
 
+// Current configuration state
+let config: MCPConfig = { ...DEFAULT_CONFIG };
+
 /**
  * Validate configuration values against constraints
  */

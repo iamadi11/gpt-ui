@@ -2,6 +2,9 @@ import { GeneratePayload, GenerateResponse, ValidationError, ModelError } from '
 import { getModelName, getConfig } from './config';
 import { callOllama } from './client';
 
+// Re-export config functions for external usage
+export { getConfig } from './config';
+
 /**
  * MCP Server Entry Point
  * Single interface between application and Ollama

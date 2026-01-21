@@ -39,9 +39,10 @@ export function validateUIGeneration(rawOutput: string | object): UIGenerationRe
       try {
         parsed = JSON.parse(rawOutput);
       } catch (parseError) {
+        const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
         throw new UIValidationError(
           'Invalid JSON format in AI output',
-          { parseError: parseError.message, rawOutput: rawOutput.substring(0, 200) }
+          { parseError: errorMessage, rawOutput: rawOutput.substring(0, 200) }
         );
       }
     } else {

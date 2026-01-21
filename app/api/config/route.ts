@@ -17,38 +17,38 @@ import {
  */
 
 /**
- * Handle GET /api/config - Get current configuration status
+ * GET /api/config - Get current configuration status
  */
-export function handleGetConfig() {
+export async function GET() {
   try {
     const status = getConfigStatus();
-    return {
+    return new Response(JSON.stringify(status), {
       status: 200,
-      body: JSON.stringify(status),
       headers: { 'Content-Type': 'application/json' }
-    };
+    });
   } catch (error) {
     console.error('[API Config] GET error:', error);
-    return {
+    return new Response(JSON.stringify({ error: 'Failed to get config status' }), {
       status: 500,
-      body: JSON.stringify({ error: 'Failed to get config status' }),
       headers: { 'Content-Type': 'application/json' }
-    };
+    });
   }
 }
 
 /**
- * Handle POST /api/config - Update runtime configuration
+ * POST /api/config - Update runtime configuration
  */
-export async function handlePostConfig(requestBody: any) {
+export async function POST(request: Request) {
   try {
+    // Parse request body
+    const requestBody = await request.json();
+
     // Validate request body
     if (!requestBody || typeof requestBody !== 'object') {
-      return {
+      return new Response(JSON.stringify({ error: 'Request body must be a valid object' }), {
         status: 400,
-        body: JSON.stringify({ error: 'Request body must be a valid object' }),
         headers: { 'Content-Type': 'application/json' }
-      };
+      });
     }
 
     // Update configuration with validation
@@ -56,64 +56,59 @@ export async function handlePostConfig(requestBody: any) {
 
     console.log('[API Config] Configuration updated successfully');
 
-    return {
+    return new Response(JSON.stringify({
+      success: true,
+      config: updatedConfig,
+      message: 'Configuration updated successfully'
+    }), {
       status: 200,
-      body: JSON.stringify({
-        success: true,
-        config: updatedConfig,
-        message: 'Configuration updated successfully'
-      }),
       headers: { 'Content-Type': 'application/json' }
-    };
+    });
 
   } catch (error) {
     if (error instanceof RuntimeConfigError) {
       console.warn('[API Config] Validation error:', error.message);
-      return {
+      return new Response(JSON.stringify({
+        error: 'Configuration validation failed',
+        details: error.message,
+        validationDetails: error.details
+      }), {
         status: 400,
-        body: JSON.stringify({
-          error: 'Configuration validation failed',
-          details: error.message,
-          validationDetails: error.details
-        }),
         headers: { 'Content-Type': 'application/json' }
-      };
+      });
     }
 
     console.error('[API Config] POST error:', error);
-    return {
+    return new Response(JSON.stringify({ error: 'Failed to update configuration' }), {
       status: 500,
-      body: JSON.stringify({ error: 'Failed to update configuration' }),
       headers: { 'Content-Type': 'application/json' }
-    };
+    });
   }
 }
 
 /**
- * Handle DELETE /api/config - Reset configuration to defaults
+ * DELETE /api/config - Reset configuration to defaults
  */
-export function handleDeleteConfig() {
+export async function DELETE() {
   try {
     const resetConfig = resetRuntimeConfig();
 
     console.log('[API Config] Configuration reset to defaults');
 
-    return {
+    return new Response(JSON.stringify({
+      success: true,
+      config: resetConfig,
+      message: 'Configuration reset to defaults'
+    }), {
       status: 200,
-      body: JSON.stringify({
-        success: true,
-        config: resetConfig,
-        message: 'Configuration reset to defaults'
-      }),
       headers: { 'Content-Type': 'application/json' }
-    };
+    });
 
   } catch (error) {
     console.error('[API Config] DELETE error:', error);
-    return {
+    return new Response(JSON.stringify({ error: 'Failed to reset configuration' }), {
       status: 500,
-      body: JSON.stringify({ error: 'Failed to reset configuration' }),
       headers: { 'Content-Type': 'application/json' }
-    };
+    });
   }
 }

@@ -1,5 +1,8 @@
 import { UIGenerationResult } from '../shared/ui-schema';
 
+// Re-export for convenience
+export type { UIGenerationResult };
+
 /**
  * Cache Types for AI UI Generation
  * Transparent caching layer that sits before MCP

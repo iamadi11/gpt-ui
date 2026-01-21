@@ -397,25 +397,6 @@ ${input}`
     }
   }
 
-  // OpenAI provider implementation (stub)
-  private async callOpenAI(
-    provider: LLMProvider,
-    model: string,
-    prompt: string,
-    signal: AbortSignal
-  ): Promise<LLMResponse> {
-    throw new Error('OpenAI provider not yet implemented')
-  }
-
-  // Anthropic provider implementation (stub)
-  private async callAnthropic(
-    provider: LLMProvider,
-    model: string,
-    prompt: string,
-    signal: AbortSignal
-  ): Promise<LLMResponse> {
-    throw new Error('Anthropic provider not yet implemented')
-  }
 
   // Utility functions
   private parseMemoryUsage(memoryStr: string): number {

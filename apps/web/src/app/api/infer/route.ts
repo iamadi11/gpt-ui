@@ -65,6 +65,14 @@ export async function POST(request: NextRequest) {
 
     const response = await engine.inferUI(inferenceRequest)
 
+    // Debug logging
+    console.log('=== API RESPONSE DEBUG ===')
+    console.log('Raw output length:', response.rawOutput?.length || 0)
+    console.log('Raw output preview:', response.rawOutput?.substring(0, 500))
+    console.log('Has error:', !!response.error)
+    console.log('Has uiDescription:', !!response.uiDescription)
+    console.log('========================')
+
     // CACHE SUCCESSFUL RESULTS: Store valid UI descriptions
     if (response.uiDescription) {
       setCachedUIDescription(input, model || 'phi3:mini', response.uiDescription)

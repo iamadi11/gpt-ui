@@ -46,6 +46,8 @@ export interface MCPConfig {
   timeout: number;
   /** Memory ceiling in bytes (soft-enforced) */
   memoryCeiling: number;
+  /** Cache configuration */
+  cache: CacheConfig;
 }
 
 /**

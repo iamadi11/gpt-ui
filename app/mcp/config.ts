@@ -1,4 +1,5 @@
 import { MCPConfig, ModelSize, ConfigError } from './types';
+import { CacheConfig } from '../cache/types';
 
 /**
  * MCP Server Configuration
@@ -7,6 +8,13 @@ import { MCPConfig, ModelSize, ConfigError } from './types';
 
 // Memory ceiling: 2GB in bytes
 const MEMORY_CEILING_BYTES = 2 * 1024 * 1024 * 1024;
+
+// Cache defaults
+const CACHE_DEFAULTS: CacheConfig = {
+  ttlMs: 5 * 60 * 1000, // 5 minutes
+  maxSize: 100, // Max 100 entries
+  aiVersion: 'v1.0', // AI version for cache key generation
+};
 
 /**
  * Default MCP configuration with strict limits
@@ -29,6 +37,9 @@ const DEFAULT_CONFIG: MCPConfig = {
 
   // Memory ceiling (soft-enforced)
   memoryCeiling: MEMORY_CEILING_BYTES,
+
+  // Cache configuration
+  cache: CACHE_DEFAULTS,
 };
 
 /**
@@ -67,6 +78,28 @@ function validateConfig(config: MCPConfig): void {
     throw new ConfigError(
       'Small model name cannot be empty',
       { smallModel: config.smallModel }
+    );
+  }
+
+  // Validate cache configuration
+  if (config.cache.ttlMs <= 0) {
+    throw new ConfigError(
+      'Cache TTL must be positive',
+      { ttlMs: config.cache.ttlMs }
+    );
+  }
+
+  if (config.cache.maxSize <= 0) {
+    throw new ConfigError(
+      'Cache max size must be positive',
+      { maxSize: config.cache.maxSize }
+    );
+  }
+
+  if (!config.cache.aiVersion || config.cache.aiVersion.trim() === '') {
+    throw new ConfigError(
+      'Cache AI version cannot be empty',
+      { aiVersion: config.cache.aiVersion }
     );
   }
 }

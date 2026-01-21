@@ -1,0 +1,17 @@
+{
+  "name": "gpt-ui-mcp",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for AI-generated UI platform",
+  "main": "app/mcp/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit app/mcp/*.ts",
+    "build": "tsc app/mcp/*.ts --outDir dist"
+  },
+  "keywords": ["mcp", "ollama", "ai", "ui"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

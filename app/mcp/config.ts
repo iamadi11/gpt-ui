@@ -1,0 +1,124 @@
+import { MCPConfig, ModelSize, ConfigError } from './types';
+
+/**
+ * MCP Server Configuration
+ * Enforces strict limits and provides model selection
+ */
+
+// Memory ceiling: 2GB in bytes
+const MEMORY_CEILING_BYTES = 2 * 1024 * 1024 * 1024;
+
+/**
+ * Default MCP configuration with strict limits
+ */
+const DEFAULT_CONFIG: MCPConfig = {
+  // Small model (only implemented model)
+  smallModel: 'llama2:7b', // Common small model, can be overridden
+
+  // Large model (config-only, not implemented yet)
+  // largeModel: 'llama2:13b',
+
+  // Strict token limits
+  maxTokens: 1024,
+
+  // Context window limits
+  maxContext: 4096,
+
+  // Request timeout (30 seconds)
+  timeout: 30000,
+
+  // Memory ceiling (soft-enforced)
+  memoryCeiling: MEMORY_CEILING_BYTES,
+};
+
+/**
+ * Validate configuration values against constraints
+ */
+function validateConfig(config: MCPConfig): void {
+  if (config.maxTokens > 1024) {
+    throw new ConfigError(
+      `Max tokens (${config.maxTokens}) exceeds limit of 1024`,
+      { maxTokens: config.maxTokens, limit: 1024 }
+    );
+  }
+
+  if (config.maxContext > 4096) {
+    throw new ConfigError(
+      `Max context (${config.maxContext}) exceeds limit of 4096`,
+      { maxContext: config.maxContext, limit: 4096 }
+    );
+  }
+
+  if (config.memoryCeiling > MEMORY_CEILING_BYTES) {
+    throw new ConfigError(
+      `Memory ceiling (${config.memoryCeiling}) exceeds limit of ${MEMORY_CEILING_BYTES}`,
+      { memoryCeiling: config.memoryCeiling, limit: MEMORY_CEILING_BYTES }
+    );
+  }
+
+  if (config.timeout <= 0) {
+    throw new ConfigError(
+      `Timeout must be positive, got ${config.timeout}`,
+      { timeout: config.timeout }
+    );
+  }
+
+  if (!config.smallModel || config.smallModel.trim() === '') {
+    throw new ConfigError(
+      'Small model name cannot be empty',
+      { smallModel: config.smallModel }
+    );
+  }
+}
+
+/**
+ * Get model name for the specified size
+ * Only 'small' is implemented, 'large' throws error
+ */
+export function getModelName(size: ModelSize): string {
+  if (size === 'large') {
+    throw new ConfigError(
+      'Large model not implemented yet',
+      { requestedSize: size }
+    );
+  }
+
+  return config.smallModel;
+}
+
+/**
+ * Get current MCP configuration
+ * Validates constraints on first access
+ */
+let config: MCPConfig = DEFAULT_CONFIG;
+let validated = false;
+
+export function getConfig(): MCPConfig {
+  if (!validated) {
+    validateConfig(config);
+    validated = true;
+  }
+  return { ...config }; // Return copy to prevent mutation
+}
+
+/**
+ * Override configuration (for testing or customization)
+ * Validates new config before applying
+ */
+export function setConfig(newConfig: Partial<MCPConfig>): void {
+  const updatedConfig = { ...config, ...newConfig };
+  validateConfig(updatedConfig);
+  config = updatedConfig;
+  validated = true;
+}
+
+/**
+ * Reset configuration to defaults
+ */
+export function resetConfig(): void {
+  config = { ...DEFAULT_CONFIG };
+  validated = false;
+}
+
+// Export the current config for direct access
+export { config as currentConfig };

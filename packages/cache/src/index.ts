@@ -218,6 +218,19 @@ export function clearCache(): void {
   globalCache?.clear()
 }
 
+// Invalidate cache entries that don't match current configuration
+export function invalidateStaleCacheEntries(currentConfigHash: string): void {
+  if (!globalCache) return
+
+  const allEntries = globalCache.getAllEntries()
+  for (const { key } of allEntries) {
+    if (key.configHash !== currentConfigHash) {
+      globalCache['cache'].delete(globalCache['getCacheKeyString'](key))
+      globalCache['accessOrder'].delete(globalCache['getCacheKeyString'](key))
+    }
+  }
+}
+
 // Default cache configuration
 export const DEFAULT_CACHE_CONFIG: CacheConfig = {
   ttl: 30 * 60 * 1000, // 30 minutes

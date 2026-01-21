@@ -30,6 +30,7 @@ export interface LLMEngineOptions {
   timeoutMs: number
   retryAttempts: number
   enableStreaming: boolean
+  idleUnloadMs?: number // Time after which to unload idle models
 }
 
 export interface LLMResponse {
@@ -51,12 +52,19 @@ interface OllamaAPIResponse {
 export class LLMEngine {
   private providers = new Map<string, LLMProvider>()
   private defaultProvider: string
+  private lastActivity = new Map<string, number>()
+  private unloadTimer?: NodeJS.Timeout
 
   constructor(private options: LLMEngineOptions) {
     this.defaultProvider = options.defaultProvider
     options.providers.forEach(provider => {
       this.providers.set(provider.name, provider)
     })
+
+    // Start idle unloading if configured
+    if (this.options.idleUnloadMs && this.options.idleUnloadMs > 0) {
+      this.startIdleUnloading()
+    }
   }
 
   // Get provider by name
@@ -74,6 +82,9 @@ export class LLMEngine {
     const startTime = Date.now()
     const provider = this.getProvider(this.defaultProvider)
     const model = this.selectModel(provider, request)
+
+    // Track activity for memory management
+    this.updateLastActivity(model.name)
 
     try {
       // Generate prompt for UI inference
@@ -423,6 +434,82 @@ ${input}`
     const provider = this.providers.get(providerName)
     return provider ? provider.capabilities : null
   }
+
+  // Memory guard: Track model activity
+  private updateLastActivity(modelName: string): void {
+    this.lastActivity.set(modelName, Date.now())
+  }
+
+  // Memory guard: Start idle unloading timer
+  private startIdleUnloading(): void {
+    if (!this.options.idleUnloadMs) return
+
+    this.unloadTimer = setInterval(() => {
+      this.unloadIdleModels()
+    }, 60000) // Check every minute
+  }
+
+  // Memory guard: Unload idle models
+  private async unloadIdleModels(): Promise<void> {
+    if (!this.options.idleUnloadMs) return
+
+    const now = Date.now()
+    const idleThreshold = this.options.idleUnloadMs
+
+    for (const [modelName, lastUsed] of this.lastActivity.entries()) {
+      if (now - lastUsed > idleThreshold) {
+        try {
+          await this.unloadModel(modelName)
+          this.lastActivity.delete(modelName)
+        } catch (error) {
+          // Log but don't fail - unloading is best effort
+          console.warn(`Failed to unload idle model ${modelName}:`, error)
+        }
+      }
+    }
+  }
+
+  // Memory guard: Unload specific model from memory
+  private async unloadModel(modelName: string): Promise<void> {
+    // For Ollama, we can use the unload API if available
+    // This is a best-effort operation
+    try {
+      const provider = this.getProvider('ollama')
+      if (provider?.type === 'ollama') {
+        const endpoint = provider.config.endpoint || 'http://localhost:11434/api/generate'
+        const unloadEndpoint = endpoint.replace('/api/generate', '/api/unload')
+
+        const response = await fetch(unloadEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: modelName }),
+        })
+
+        if (!response.ok) {
+          // Ollama might not support unload API, this is expected
+          console.debug(`Model ${modelName} unload not supported by Ollama`)
+        }
+      }
+    } catch (error) {
+      // Ignore unload failures - this is best effort
+    }
+  }
+
+  // Memory guard: Manual cleanup
+  cleanup(): void {
+    if (this.unloadTimer) {
+      clearInterval(this.unloadTimer)
+      this.unloadTimer = undefined
+    }
+
+    // Attempt to unload all models
+    for (const modelName of this.lastActivity.keys()) {
+      this.unloadModel(modelName).catch(() => {
+        // Ignore cleanup errors
+      })
+    }
+    this.lastActivity.clear()
+  }
 }
 
 // Default Ollama provider configuration
@@ -479,5 +566,6 @@ export const DEFAULT_ENGINE_OPTIONS: LLMEngineOptions = {
   memoryBudgetGB: 2,
   timeoutMs: 180000,
   retryAttempts: 2,
-  enableStreaming: false
+  enableStreaming: false,
+  idleUnloadMs: 30 * 60 * 1000 // 30 minutes idle timeout
 }

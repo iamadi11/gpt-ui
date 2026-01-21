@@ -1,13 +1,13 @@
 {
-  "name": "gpt-ui-mcp",
+  "name": "gpt-ui-platform",
   "version": "1.0.0",
-  "description": "Model Context Protocol server for AI-generated UI platform",
-  "main": "app/mcp/index.ts",
+  "description": "AI-generated UI platform with MCP boundary and contract-based UI generation",
+  "main": "app/server/generate-ui.ts",
   "scripts": {
-    "type-check": "tsc --noEmit app/mcp/*.ts",
-    "build": "tsc app/mcp/*.ts --outDir dist"
+    "type-check": "tsc --noEmit app/**/*.ts",
+    "build": "tsc app/**/*.ts --outDir dist"
   },
-  "keywords": ["mcp", "ollama", "ai", "ui"],
+  "keywords": ["mcp", "ollama", "ai", "ui", "contract"],
   "author": "",
   "license": "MIT",
   "devDependencies": {

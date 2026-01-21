@@ -115,6 +115,7 @@ export interface InferenceConfig {
   temperature?: number
   maxTokens?: number
   timeout?: number
+  modelInstallationTimeout?: number // Separate timeout for model download/installation
   retries?: number
 }
 

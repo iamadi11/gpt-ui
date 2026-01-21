@@ -72,23 +72,24 @@ export async function POST(request: NextRequest) {
     }
 
     // AI CALL: Generate UI description using LLM engine
-    // PERFORMANCE GUARD: Use shorter timeout for guaranteed <2s response
+    // PERFORMANCE GUARD: Use reasonable timeouts for inference and model installation
     const inferenceRequest: UIInferenceRequest = {
       input,
       model,
       config: {
         temperature: 0.3,
         maxTokens: 256,
-        timeout: 1500 // 1.5s timeout to guarantee <2s total response
+        timeout: 30000, // 30s timeout for inference (reasonable for LLM calls)
+        modelInstallationTimeout: 300000 // 5 minutes for model downloads (first-time setup)
       }
     }
 
     const response = await engine.inferUI(inferenceRequest)
 
-    // PERFORMANCE GUARD: Check processing time (should be < 2s)
-    if (response.processingTime > 2000) {
-      console.warn(`Performance violation: UI generation took ${response.processingTime}ms (> 2000ms limit)`)
-      // Still allow the response but log the violation
+    // PERFORMANCE GUARD: Check processing time (should be reasonable)
+    if (response.processingTime > 60000) { // 1 minute warning threshold
+      console.warn(`Performance warning: UI generation took ${response.processingTime}ms (> 60000ms)`)
+      // Still allow the response but log the warning
     }
 
     // Debug logging

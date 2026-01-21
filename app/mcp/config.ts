@@ -1,5 +1,6 @@
 import { MCPConfig, ModelSize, ConfigError } from './types';
 import { CacheConfig } from '../cache/types';
+import { getRuntimeConfig } from '../shared/runtime-config';
 
 /**
  * MCP Server Configuration
@@ -121,17 +122,36 @@ export function getModelName(size: ModelSize): string {
 
 /**
  * Get current MCP configuration
+ * Merges runtime config with defaults
  * Validates constraints on first access
  */
-let config: MCPConfig = DEFAULT_CONFIG;
 let validated = false;
 
 export function getConfig(): MCPConfig {
+  // Get runtime config
+  const runtimeConfig = getRuntimeConfig();
+
+  // Merge with defaults
+  const mergedConfig: MCPConfig = {
+    smallModel: DEFAULT_CONFIG.smallModel,
+    maxTokens: runtimeConfig.maxTokens,
+    maxContext: DEFAULT_CONFIG.maxContext, // Keep static for now
+    timeout: DEFAULT_CONFIG.timeout,       // Keep static for now
+    memoryCeiling: DEFAULT_CONFIG.memoryCeiling, // Keep static for now
+    cache: {
+      ...DEFAULT_CONFIG.cache,
+      ...runtimeConfig.cache,
+      aiVersion: DEFAULT_CONFIG.cache.aiVersion, // Keep static version
+    },
+  };
+
+  // Validate merged config
   if (!validated) {
-    validateConfig(config);
+    validateConfig(mergedConfig);
     validated = true;
   }
-  return { ...config }; // Return copy to prevent mutation
+
+  return { ...mergedConfig }; // Return copy to prevent mutation
 }
 
 /**

@@ -2,6 +2,7 @@ import { generate, getConfig } from '../mcp';
 import { UIGenerationResult } from '../shared/ui-schema';
 import { validateUIGeneration, UIValidationError } from './validate-ui';
 import { createCache, UICache } from '../cache';
+import { getRuntimeConfig } from '../shared/runtime-config';
 
 /**
  * UI Generation Service
@@ -78,6 +79,9 @@ export async function generateUI(
   intent: string
 ): Promise<UIGenerationResult> {
   try {
+    // Get runtime config for dynamic model selection
+    const runtimeConfig = getRuntimeConfig();
+
     // Get cache instance
     const cache = getCache();
     const config = getConfig();
@@ -85,11 +89,11 @@ export async function generateUI(
     // Serialize input for cache key
     const serializedInput = serializeInput(input);
 
-    // Generate deterministic cache key
+    // Generate deterministic cache key using runtime model
     const cacheKey = cache.generateKey({
       input: serializedInput,
       intent,
-      model: 'small', // Only small model implemented
+      model: runtimeConfig.activeModel,
       aiVersion: config.cache.aiVersion,
     });
 
@@ -106,7 +110,7 @@ export async function generateUI(
     const mcpResponse = await generate({
       input,
       intent,
-      model: 'small', // Only small model implemented
+      model: runtimeConfig.activeModel, // Use runtime model selection
     });
 
     // Validate MCP output against contract
@@ -161,12 +165,13 @@ export function getCacheStats() {
 export function invalidateCacheEntry(input: string | object, intent: string) {
   const cache = getCache();
   const config = getConfig();
+  const runtimeConfig = getRuntimeConfig();
   const serializedInput = serializeInput(input);
 
   const cacheKey = cache.generateKey({
     input: serializedInput,
     intent,
-    model: 'small',
+    model: runtimeConfig.activeModel,
     aiVersion: config.cache.aiVersion,
   });
 

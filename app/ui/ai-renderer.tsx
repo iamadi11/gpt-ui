@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Badge } from '../../components/ui/badge';
 import { Separator } from '../../components/ui/separator';
 import { ScrollArea } from '../../components/ui/scroll-area';
+import { getRuntimeConfig } from '../shared/runtime-config';
 
 /**
  * AI Renderer - Dumb recursive renderer for AI-generated UI
@@ -28,11 +29,15 @@ interface AIRendererProps {
  */
 export function AIRenderer({
   result,
-  confidenceThreshold = 0.5
+  confidenceThreshold
 }: AIRendererProps) {
+  // Get runtime config for confidence threshold
+  const runtimeConfig = getRuntimeConfig();
+  const threshold = confidenceThreshold ?? runtimeConfig.ui.confidenceThreshold;
+
   // Check if we should show fallback
   const shouldShowFallback =
-    result.confidence < confidenceThreshold ||
+    result.confidence < threshold ||
     !!result.fallback;
 
   if (shouldShowFallback) {

@@ -97,11 +97,16 @@ export async function generateUI(
       aiVersion: config.cache.aiVersion,
     });
 
-    // Check cache first
-    const cachedResult = cache.get(cacheKey);
-    if (cachedResult) {
-      console.log(`[UI Generation] Cache hit for key: ${cacheKey.substring(0, 16)}...`);
-      return cachedResult;
+    // Check cache first (with error handling)
+    let cachedResult: UIGenerationResult | null = null;
+    try {
+      cachedResult = cache.get(cacheKey);
+      if (cachedResult) {
+        console.log(`[UI Generation] Cache hit for key: ${cacheKey.substring(0, 16)}...`);
+        return cachedResult;
+      }
+    } catch (cacheError) {
+      console.warn(`[UI Generation] Cache read failed, continuing without cache:`, cacheError);
     }
 
     // Cache miss - proceed with MCP call
@@ -117,8 +122,12 @@ export async function generateUI(
     // Hard failure - no retries, no auto-repair
     const validatedUI = validateUIGeneration(mcpResponse.output);
 
-    // Store validated result in cache (never cache errors)
-    cache.set(cacheKey, validatedUI);
+    // Store validated result in cache (with error handling)
+    try {
+      cache.set(cacheKey, validatedUI);
+    } catch (cacheError) {
+      console.warn(`[UI Generation] Cache write failed, continuing without caching:`, cacheError);
+    }
 
     // Log successful generation
     console.log(`[UI Generation] Generated and cached UI with confidence: ${validatedUI.confidence}`);

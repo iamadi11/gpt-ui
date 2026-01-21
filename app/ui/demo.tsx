@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { generateUI } from '../server/generate-ui';
+import React, { useState } from 'react';
 import { UIGenerationResult } from '../shared/ui-schema';
 import { AIRenderer } from './ai-renderer';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -23,13 +22,26 @@ export function AIDemo() {
     setResult(null);
 
     try {
-      // Phase 2: Server pipeline - Input → MCP → AI JSON → Validation
-      const uiResult = await generateUI(
-        input,
-        'Generate a dashboard showing the requested data with appropriate visualizations'
-      );
+      // Call the full pipeline API: Input → Cache → MCP → Validation → Response
+      const response = await fetch('/api/generate-ui', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          input: input,
+          intent: 'Generate a dashboard showing the requested data with appropriate visualizations'
+        }),
+      });
 
-      // Phase 3: Render the validated AI output
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || errorData.error || `HTTP ${response.status}`);
+      }
+
+      const uiResult: UIGenerationResult = await response.json();
+
+      // Render the AI-generated UI (renderer remains dumb)
       setResult(uiResult);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred');

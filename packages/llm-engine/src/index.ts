@@ -156,8 +156,6 @@ UI PRIMITIVES AVAILABLE:
 - "card": For highlighting key information or metrics
 - "table": For structured data or comparisons
 - "chart": For visualizing trends or distributions (placeholder only)
-- "form": For user input collection
-- "list": For enumerated items
 
 CRITICAL RULES:
 - Do NOT assume field names have semantic meaning
@@ -175,7 +173,7 @@ OUTPUT FORMAT (JSON only):
       "id": "unique-section-id",
       "title": "Section Title",
       "intent": "summary|analysis|data|insight|action",
-      "ui": "text|card|table|chart|form|list",
+      "ui": "text|card|table|chart",
       "content": "...",
       "data": [...],
       "actions": [...],
@@ -254,7 +252,7 @@ ${input}`
         typeof section.intent === 'string' &&
         typeof section.ui === 'string' &&
         typeof section.confidence === 'number' &&
-        ['text', 'card', 'table', 'chart', 'form', 'list'].includes(section.ui)
+        ['text', 'card', 'table', 'chart'].includes(section.ui)
       )
     )
   }
@@ -301,12 +299,8 @@ ${input}`
       switch (provider.type) {
         case 'ollama':
           return await this.callOllama(provider, model, prompt, controller.signal)
-        case 'openai':
-          return await this.callOpenAI(provider, model, prompt, controller.signal)
-        case 'anthropic':
-          return await this.callAnthropic(provider, model, prompt, controller.signal)
         default:
-          throw new Error(`Unsupported provider type: ${provider.type}`)
+          throw new Error(`Unsupported provider type: ${provider.type}. Only Ollama is supported.`)
       }
     } finally {
       clearTimeout(timeoutId)

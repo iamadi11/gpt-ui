@@ -25,7 +25,7 @@ export interface UISection {
   metadata?: Record<string, any> // Additional AI metadata
 }
 
-export type UIPrimitive = 'text' | 'card' | 'table' | 'chart' | 'form' | 'list'
+export type UIPrimitive = 'text' | 'card' | 'table' | 'chart'
 
 export interface UIAction {
   id: string
@@ -182,7 +182,7 @@ export interface SystemConfig {
 
 // Validation schemas
 export const UI_PRIMITIVES: readonly UIPrimitive[] = [
-  'text', 'card', 'table', 'chart', 'form', 'list'
+  'text', 'card', 'table', 'chart'
 ] as const
 
 export const UI_INTENTS = [

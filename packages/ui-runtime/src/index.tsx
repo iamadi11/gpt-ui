@@ -4,7 +4,6 @@ import type {
   UISection,
   UIPrimitive,
   UIRenderContext,
-  UIAction,
   UITheme,
   UIAccessibility
 } from '@gpt-ui/schema'
@@ -154,101 +153,8 @@ const DefaultComponents = {
     </div>
   ),
 
-  list: ({ title, data, content, confidence, intent, className, ...props }: any) => {
-    const items = data || (content ? content.split('\n').filter((line: string) => line.trim()) : [])
-
-    return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-4 ${className || ''}`} {...props}>
-        {title && (
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 capitalize">{intent}</span>
-              <span className={`text-xs px-2 py-1 rounded ${
-                confidence > 0.8 ? 'bg-green-100 text-green-800' :
-                confidence > 0.6 ? 'bg-yellow-100 text-yellow-800' :
-                'bg-red-100 text-red-800'
-              }`}>
-                {Math.round(confidence * 100)}%
-              </span>
-            </div>
-          </div>
-        )}
-        <ul className="space-y-2">
-          {items.map((item: any, index: number) => (
-            <li key={index} className="flex items-start">
-              <span className="text-gray-400 mr-2">•</span>
-              <span className="text-gray-700">{typeof item === 'string' ? item : JSON.stringify(item)}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )
-  },
-
-  form: ({ title, actions, confidence, intent, className, ...props }: any) => (
-    <div className={`bg-white border border-gray-200 rounded-lg p-4 ${className || ''}`} {...props}>
-      {title && (
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 capitalize">{intent}</span>
-            <span className={`text-xs px-2 py-1 rounded ${
-              confidence > 0.8 ? 'bg-green-100 text-green-800' :
-              confidence > 0.6 ? 'bg-yellow-100 text-yellow-800' :
-              'bg-red-100 text-red-800'
-            }`}>
-              {Math.round(confidence * 100)}%
-            </span>
-          </div>
-        </div>
-      )}
-      <div className="space-y-3">
-        {actions?.map((action: UIAction, index: number) => (
-          <FormField key={index} action={action} />
-        ))}
-      </div>
-    </div>
-  )
 }
 
-const FormField: React.FC<{ action: UIAction }> = ({ action }) => {
-  switch (action.type) {
-    case 'input':
-      return (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            {action.label}
-          </label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder={action.value || ''}
-          />
-        </div>
-      )
-    case 'button':
-      return (
-        <button
-          className={`px-4 py-2 rounded-md font-medium ${
-            action.variant === 'primary'
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : action.variant === 'danger'
-              ? 'bg-red-600 text-white hover:bg-red-700'
-              : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
-          }`}
-        >
-          {action.label}
-        </button>
-      )
-    default:
-      return (
-        <div className="text-sm text-gray-500">
-          Unsupported action type: {action.type}
-        </div>
-      )
-  }
-}
 
 export class UIRuntime {
   constructor(private options: UIRuntimeOptions = {}) {}

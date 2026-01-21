@@ -142,6 +142,7 @@ export class LLMEngine {
 
   // Generate UI inference prompt
   private generateUIPrompt(input: string, context?: any): string {
+    console.log('Generating prompt with input:', input)
     return `You are a UI designer. Given any input (text, JSON, data), create a user interface that best presents that information to a human.
 
 REASONING PROCESS:

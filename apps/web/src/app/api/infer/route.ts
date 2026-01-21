@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { LLMEngine, DEFAULT_ENGINE_OPTIONS } from '@gpt-ui/llm-engine'
-import { getCachedUIDescription, setCachedUIDescription } from '@gpt-ui/cache'
+import { getCachedUIDescription, setCachedUIDescription, initializeCache, DEFAULT_CACHE_CONFIG } from '@gpt-ui/cache'
 import type { UIInferenceRequest } from '@gpt-ui/schema'
+
+// Initialize cache on module load
+initializeCache(DEFAULT_CACHE_CONFIG)
 
 // API Route: AI UI Generation Service
 //
@@ -21,6 +24,7 @@ import type { UIInferenceRequest } from '@gpt-ui/schema'
 export async function POST(request: NextRequest) {
   try {
     const { input, model } = await request.json()
+    console.log('API received:', { input, model })
 
     if (!input || typeof input !== 'string') {
       return NextResponse.json(

@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { UIRenderer, useUIRuntime } from '@gpt-ui/ui-runtime'
-import { LLMEngine, DEFAULT_ENGINE_OPTIONS, DEFAULT_OLLAMA_PROVIDER } from '@gpt-ui/llm-engine'
-import { initializeCache, getCacheStats, clearCache, DEFAULT_CACHE_CONFIG } from '@gpt-ui/cache'
-import type { UIInferenceRequest, UIInferenceResponse } from '@gpt-ui/schema'
+import { DEFAULT_OLLAMA_PROVIDER } from '@gpt-ui/llm-engine'
+import { getCacheStats, clearCache } from '@gpt-ui/cache'
+import type { UIInferenceResponse } from '@gpt-ui/schema'
 
 export default function Home() {
   const [input, setInput] = useState('')
@@ -12,40 +12,33 @@ export default function Home() {
   const [aiResponse, setAiResponse] = useState<UIInferenceResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [showDebug, setShowDebug] = useState(false)
-  const [engine, setEngine] = useState<LLMEngine | null>(null)
 
   const runtime = useUIRuntime({
     density: 'normal',
     enableValidation: true
   })
 
-  // Initialize engine and cache on mount
-  useEffect(() => {
-    initializeCache(DEFAULT_CACHE_CONFIG)
-    const llmEngine = new LLMEngine(DEFAULT_ENGINE_OPTIONS)
-    setEngine(llmEngine)
-  }, [])
-
   const availableModels = DEFAULT_OLLAMA_PROVIDER.capabilities.supportedModels
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim() || !engine) return
+    if (!input.trim()) return
 
     setLoading(true)
     try {
-      const request: UIInferenceRequest = {
-        input,
-        model: selectedModel,
-        config: {
-          temperature: 0.3,
-          maxTokens: 256,
-          timeout: 180000
-        }
-      }
+      console.log('Sending to API:', { input, model: selectedModel })
+      const response = await fetch('/api/infer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input,
+          model: selectedModel
+        }),
+      })
 
-      const response = await engine.inferUI(request)
-      setAiResponse(response)
+      const data: UIInferenceResponse = await response.json()
+      console.log('API response:', data)
+      setAiResponse(data)
     } catch (error) {
       console.error('Error:', error)
       // Fallback on error
